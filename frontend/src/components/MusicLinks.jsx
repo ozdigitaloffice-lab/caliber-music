@@ -97,30 +97,68 @@ export const MusicLinks = () => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative rounded-lg p-8 md:p-10 flex flex-col justify-between min-h-[220px] overflow-hidden cursor-pointer"
+                className="group relative rounded-lg p-8 md:p-10 flex flex-col justify-between min-h-[260px] overflow-hidden cursor-pointer"
                 style={{ backgroundColor: link.color }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.25 } }}
+                whileTap={{ scale: 0.98 }}
               >
-                {/* Shine effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-transparent transition-all duration-500" />
+                {/* Animated glow border */}
+                <motion.div
+                  className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{
+                    boxShadow: `0 0 40px ${link.color}80, 0 0 80px ${link.color}40, inset 0 0 60px ${link.color}20`,
+                  }}
+                />
+
+                {/* Animated diagonal shine sweep */}
+                <div className="absolute inset-0 overflow-hidden rounded-lg">
+                  <div
+                    className="absolute -inset-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-out rotate-12"
+                    style={{ width: '50%' }}
+                  />
+                </div>
+
+                {/* Pulsing background circles */}
+                <motion.div
+                  className="absolute -top-10 -left-10 w-40 h-40 rounded-full opacity-20"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <motion.div
+                  className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-10"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
+                  animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.05, 0.15] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                />
 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="text-white">
+                  <div className="flex items-center justify-between mb-10">
+                    <motion.div
+                      className="text-white"
+                      whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.5 } }}
+                    >
                       {IconComponent && <IconComponent />}
-                    </div>
-                    <ExternalLink className="text-white/60 group-hover:text-white transition-colors duration-300" size={20} />
+                    </motion.div>
+                    <motion.div
+                      className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white/60 group-hover:text-white group-hover:border-white group-hover:bg-white/10 transition-all duration-300"
+                    >
+                      <ExternalLink size={18} />
+                    </motion.div>
                   </div>
 
                   <div>
-                    <h3 className="text-white text-2xl md:text-3xl font-semibold mb-1">
+                    <h3 className="text-white text-3xl md:text-4xl font-bold mb-2">
                       {link.platform}
                     </h3>
-                    <p className="text-white/70 font-mono text-xs tracking-[0.0875em] uppercase">
+                    <p className="text-white/80 font-mono text-sm tracking-[0.0875em] uppercase group-hover:text-white transition-colors duration-300">
                       האזינו עכשיו
                     </p>
                   </div>
                 </div>
+
+                {/* Bottom accent bar on hover */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/0 group-hover:bg-white/30 transition-colors duration-500" />
               </motion.a>
             );
           })}
