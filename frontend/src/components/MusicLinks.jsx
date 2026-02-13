@@ -66,7 +66,7 @@ export const MusicLinks = () => {
           transition={{ duration: 0.6 }}
           className="mb-16 md:mb-20"
         >
-          <span className="inline-block bg-[#d987ff] text-[#151515] font-mono text-xs tracking-[0.0875em] uppercase rounded-full px-3 py-1.5 mb-4">
+          <span className="inline-block bg-[#d987ff] text-[#151515] font-mono text-sm md:text-base tracking-[0.0875em] uppercase rounded-full px-4 py-2 mb-4">
             הקשיבו
           </span>
           <h2

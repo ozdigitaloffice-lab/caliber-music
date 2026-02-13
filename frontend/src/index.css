@@ -13,6 +13,11 @@ body {
   color: #fff;
 }
 
+/* Hide Emergent floating badge if injected by external script */
+#emergent-badge {
+  display: none !important;
+}
+
 code {
   font-family: 'Space Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
 }

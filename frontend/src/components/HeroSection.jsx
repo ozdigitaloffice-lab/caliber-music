@@ -41,7 +41,7 @@ export const HeroSection = () => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="mb-4"
           >
-            <span className="inline-block bg-[#ffe03d] text-[#151515] font-mono text-xs tracking-[0.0875em] uppercase rounded-full px-3 py-1.5 font-normal">
+            <span className="inline-block bg-[#ffe03d] text-[#151515] font-mono text-sm md:text-base tracking-[0.0875em] uppercase rounded-full px-4 py-2 font-normal">
               היפ הופ ישראלי
             </span>
           </motion.div>

@@ -16,7 +16,7 @@ export const AboutSection = () => {
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-block bg-[#ff84e4] text-[#151515] font-mono text-xs tracking-[0.0875em] uppercase rounded-full px-3 py-1.5 mb-4">
+            <span className="inline-block bg-[#ff84e4] text-[#151515] font-mono text-sm md:text-base tracking-[0.0875em] uppercase rounded-full px-4 py-2 mb-4">
               אודות
             </span>
             <h2
