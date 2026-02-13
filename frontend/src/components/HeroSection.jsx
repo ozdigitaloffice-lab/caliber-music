@@ -85,20 +85,24 @@ export const HeroSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.6 }}
-            className="flex items-center gap-4"
+            className="flex items-center gap-5 flex-wrap"
           >
-            <a
+            <motion.a
               href="#music"
-              className="inline-flex items-center justify-center bg-[#151515] text-white border border-[#151515] rounded-full px-6 py-3 font-mono text-xs tracking-[0.0875em] uppercase min-h-[44px] hover:bg-[#151515]/80 hover:border-white/20 active:scale-[0.98] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center justify-center bg-[#ffe03d] text-[#151515] border-2 border-[#ffe03d] rounded-full px-10 py-4 font-bold text-base md:text-lg tracking-wide min-h-[52px] hover:bg-[#ffe03d]/90 hover:shadow-[0_0_30px_rgba(255,224,61,0.4)] transition-shadow duration-300"
             >
               האזינו עכשיו
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="#about"
-              className="inline-flex items-center justify-center bg-transparent text-white border border-white/30 rounded-full px-6 py-3 font-mono text-xs tracking-[0.0875em] uppercase min-h-[44px] hover:border-[#ffe03d] hover:text-[#ffe03d] active:scale-[0.98] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center justify-center bg-transparent text-white border-2 border-white/40 rounded-full px-10 py-4 font-bold text-base md:text-lg tracking-wide min-h-[52px] hover:border-[#ff84e4] hover:text-[#ff84e4] hover:shadow-[0_0_30px_rgba(255,132,228,0.3)] transition-shadow duration-300"
             >
               הכירו אותנו
-            </a>
+            </motion.a>
           </motion.div>
         </div>
       </div>
