@@ -15,7 +15,7 @@ export const bandData = {
     {
       id: 2,
       platform: "YouTube",
-      url: "https://www.youtube.com/@%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%D7%A7%D7%9C%D7%99%D7%91%D7%A8/shorts",
+      url: "https://www.youtube.com/@%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%D7%A7%D7%9C%D7%99%D7%91%D7%A8",
       color: "#FF0000",
       hoverColor: "#ff3333"
     },
