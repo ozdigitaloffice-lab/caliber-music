@@ -28,9 +28,9 @@ export const bandData = {
     }
   ],
   stats: [
-    { label: "שירים", value: "50+" },
-    { label: "מאזינים", value: "100K+" },
-    { label: "הופעות", value: "200+" }
+    { label: "שירים", value: "12" },
+    { label: "מאזינים", value: "5K+" },
+    { label: "שיתופי פעולה", value: "10+" }
   ],
   about: {
     title: "מי אנחנו",
