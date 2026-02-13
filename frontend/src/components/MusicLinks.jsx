@@ -98,9 +98,16 @@ export const MusicLinks = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative rounded-lg p-8 md:p-10 flex flex-col justify-between min-h-[260px] overflow-hidden cursor-pointer"
-                style={{ backgroundColor: link.color }}
-                whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.25 } }}
-                whileTap={{ scale: 0.98 }}
+                style={{ backgroundColor: link.color, perspective: 1100 }}
+                whileHover={{
+                  y: -10,
+                  scale: 1.06,
+                  rotateX: -6,
+                  rotateY: 6,
+                  boxShadow: `0 26px 60px rgba(0,0,0,0.55)`,
+                  transition: { duration: 0.35, ease: 'easeOut' },
+                }}
+                whileTap={{ scale: 0.98, rotateX: 0, rotateY: 0, boxShadow: 'none' }}
               >
                 {/* Animated glow border */}
                 <motion.div
@@ -110,11 +117,22 @@ export const MusicLinks = () => {
                   }}
                 />
 
-                {/* Animated diagonal shine sweep */}
-                <div className="absolute inset-0 overflow-hidden rounded-lg">
-                  <div
-                    className="absolute -inset-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-out rotate-12"
-                    style={{ width: '50%' }}
+                {/* Animated diagonal shine sweep + color glow */}
+                <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+                  <motion.div
+                    className="absolute -inset-full bg-gradient-to-r from-transparent via-white/30 to-transparent rotate-12"
+                    style={{ width: '55%' }}
+                    initial={{ x: '-220%' }}
+                    whileHover={{ x: '220%' }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 mix-blend-screen opacity-40"
+                    style={{
+                      backgroundImage: `radial-gradient(circle at 0% 0%, ${link.color}66, transparent 60%), radial-gradient(circle at 100% 100%, #ffffff33, transparent 60%)`,
+                    }}
+                    animate={{ opacity: [0.25, 0.5, 0.25] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                   />
                 </div>
 
@@ -136,7 +154,25 @@ export const MusicLinks = () => {
                   <div className="flex items-center justify-between mb-10">
                     <motion.div
                       className="text-white"
-                      whileHover={{ rotate: [0, -10, 10, 0], transition: { duration: 0.5 } }}
+                      style={{ transformStyle: 'preserve-3d' }}
+                      animate={{
+                        y: [0, -4, 0],
+                        rotateZ: [0, -2, 2, 0],
+                      }}
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                      whileHover={{
+                        rotateX: -18,
+                        rotateY: 18,
+                        scale: 1.18,
+                        color: '#ffffff',
+                        filter:
+                          'drop-shadow(0 0 18px rgba(0,0,0,0.55)) hue-rotate(18deg) saturate(1.6)',
+                        transition: { duration: 0.35, ease: 'easeOut' },
+                      }}
                     >
                       {IconComponent && <IconComponent />}
                     </motion.div>

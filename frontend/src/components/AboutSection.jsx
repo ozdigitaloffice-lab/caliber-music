@@ -60,18 +60,6 @@ export const AboutSection = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#151515]/60 to-transparent" />
             </div>
-
-            {/* Decorative elements */}
-            <motion.div
-              className="absolute -bottom-4 -left-4 w-24 h-24 md:w-32 md:h-32 rounded-lg bg-[#ffe03d]/10 border border-[#ffe03d]/20"
-              animate={{ rotate: [0, 3, 0, -3, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.div
-              className="absolute -top-4 -right-4 w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#ff84e4]/10 border border-[#ff84e4]/20"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
           </motion.div>
         </div>
       </div>
