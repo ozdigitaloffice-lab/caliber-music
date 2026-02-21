@@ -30,8 +30,7 @@ export const bandData = {
   stats: [
     { label: "שירים", value: "12" },
     { label: "מאזינים", value: "5K+" },
-    { label: "שיתופי פעולה", value: "10+" },
-    { label: "שיתופי פעולה (יצירת קשר)", value: "052-3141206" }
+    { label: "שיתופי פעולה", value: "10+" }
   ],
   about: {
     title: "מי אנחנו",
