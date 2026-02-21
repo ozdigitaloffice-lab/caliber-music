@@ -53,7 +53,7 @@ export const HeroSection = () => {
           {/* Band Name - Large Display */}
           <div className="overflow-hidden mb-4">
             <motion.h1
-              className="font-display font-extrabold text-[#ffe03d] uppercase leading-none"
+              className="font-display font-extrabold text-[#ffe03d] uppercase leading-none whitespace-nowrap"
               style={{ fontSize: 'clamp(3.5rem, 12vw, 12rem)' }}
             >
               {titleChars.map((char, i) => (
