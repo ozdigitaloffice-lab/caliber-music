@@ -1,7 +1,7 @@
 export const bandData = {
   name: "משפחת קליבר",
   nameEn: "CALIBER FAMILY",
-  tagline: "היפ הופ ישראלי אמיתי",
+  tagline: "היפ הופ וראפ ישראלי אמיתי",
   description: "משפחת קליבר - להקת הראפ שמייצגת את הסאונד האמיתי של הרחוב הישראלי. מוזיקה שנולדה מהלב, עם ביטים קשוחים ומילים שמדברות אל הנשמה.",
   heroImage: "https://customer-assets.emergentagent.com/job_3e445c6f-4f21-4280-b902-49885a77d5d7/artifacts/lt7sqz88_%D7%A2%D7%99%D7%A6%D7%95%D7%91%20%D7%9C%D7%9C%D7%90%20%D7%A9%D7%9D%20%2839%29.png",
   musicLinks: [

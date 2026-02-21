@@ -3,7 +3,12 @@ import { ChevronDown } from 'lucide-react';
 import { bandData } from '../data/mock';
 
 export const HeroSection = () => {
-  const titleChars = bandData.name.split('');
+  const name = bandData.name;
+  const spaceIndex = name.indexOf(' ');
+  const part1 = spaceIndex >= 0 ? name.slice(0, spaceIndex + 1) : name;
+  const part2 = spaceIndex >= 0 ? name.slice(spaceIndex + 1) : '';
+  const part1Chars = part1.split('');
+  const part2Chars = part2.split('');
 
   return (
     <section
@@ -46,19 +51,19 @@ export const HeroSection = () => {
             className="mb-4"
           >
             <span className="inline-block bg-[#ffe03d] text-[#151515] font-mono text-sm md:text-base tracking-[0.0875em] uppercase rounded-full px-4 py-2 font-normal">
-              היפ הופ ישראלי
+              היפ הופ • ראפ ישראלי
             </span>
           </motion.div>
 
           {/* Band Name - Large Display */}
           <div className="overflow-hidden mb-4">
             <motion.h1
-              className="font-display font-extrabold text-[#ffe03d] uppercase leading-none whitespace-nowrap"
+              className="font-display font-extrabold text-[#ffe03d] uppercase leading-none"
               style={{ fontSize: 'clamp(3.5rem, 12vw, 12rem)' }}
             >
-              {titleChars.map((char, i) => (
+              {part1Chars.map((char, i) => (
                 <motion.span
-                  key={i}
+                  key={`p1-${i}`}
                   initial={{ y: 120, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{
@@ -71,6 +76,35 @@ export const HeroSection = () => {
                   {char === ' ' ? '\u00A0' : char}
                 </motion.span>
               ))}
+              {part2 && (
+                <motion.span
+                  key="caliber"
+                  initial={{ y: 120, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    delay: 0.5 + part1Chars.length * 0.04,
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block whitespace-nowrap"
+                >
+                  {part2Chars.map((char, i) => (
+                    <motion.span
+                      key={`p2-${i}`}
+                      initial={{ y: 120, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{
+                        delay: 0.5 + (part1Chars.length + i) * 0.04,
+                        duration: 0.8,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      className="inline-block"
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </motion.span>
+              )}
             </motion.h1>
           </div>
 
