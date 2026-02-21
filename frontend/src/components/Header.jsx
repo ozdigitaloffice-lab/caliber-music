@@ -21,6 +21,28 @@ export const Header = () => {
     { label: 'שיתופי פעולה', href: '#collab-contact' },
   ];
 
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const id = href.replace('#', '');
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setMenuOpen(false);
+  };
+
+  const handleMobileNavClick = (href) => {
+    const id = href.replace('#', '');
+    const element = document.getElementById(id);
+    setMenuOpen(false);
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    }
+  };
+
   return (
     <motion.header
       initial={{ y: -100 }}
@@ -32,7 +54,7 @@ export const Header = () => {
     >
       <div className="max-w-[1920px] mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <a href="#hero" className="font-display text-2xl md:text-3xl font-extrabold uppercase text-[#ffe03d] tracking-wide hover:text-white transition-colors duration-300">
+          <a href="#hero" onClick={(e) => handleNavClick(e, '#hero')} className="font-display text-2xl md:text-3xl font-extrabold uppercase text-[#ffe03d] tracking-wide hover:text-white transition-colors duration-300">
             קליבר
           </a>
 
@@ -42,6 +64,7 @@ export const Header = () => {
               <a
                 key={link.label}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="text-[#ffd1e7] hover:text-white text-base font-normal transition-colors duration-150 relative after:content-[''] after:absolute after:bottom-[-4px] after:right-0 after:w-0 after:h-[2px] after:bg-[#ffe03d] after:transition-all after:duration-300 hover:after:w-full"
               >
                 {link.label}
@@ -75,7 +98,10 @@ export const Header = () => {
                 <a
                   key={link.label}
                   href={link.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleMobileNavClick(link.href);
+                  }}
                   className="text-[#ffd1e7] hover:text-white text-lg font-normal transition-colors duration-150"
                 >
                   {link.label}
