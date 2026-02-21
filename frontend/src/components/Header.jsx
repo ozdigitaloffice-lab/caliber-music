@@ -18,6 +18,7 @@ export const Header = () => {
     { label: 'ראשי', href: '#hero' },
     { label: 'מוזיקה', href: '#music' },
     { label: 'אודות', href: '#about' },
+    { label: 'שיתופי פעולה', href: '#collab-contact' },
   ];
 
   return (
