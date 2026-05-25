@@ -1,0 +1,316 @@
+{
+  "props": {
+    "pageProps": {
+      "state": {
+        "data": {
+          "entity": {
+            "type": "artist",
+            "name": "משפחת קליבר",
+            "uri": "spotify:artist:6yionLgW9s7T0cIrPWX7oB",
+            "id": "6yionLgW9s7T0cIrPWX7oB",
+            "title": "משפחת קליבר",
+            "subtitle": "Top tracks",
+            "releaseDate": null,
+            "duration": 0,
+            "isPlayable": true,
+            "playabilityReason": "PLAYABLE",
+            "isExplicit": false,
+            "hasVideo": false,
+            "relatedEntityUri": "spotify:artist:6yionLgW9s7T0cIrPWX7oB",
+            "trackList": [
+              {
+                "uri": "spotify:track:5FSary1bsS1PAMxuLssTyV",
+                "uid": "d8f2d5a89169d789e87c",
+                "title": "נגמר הזמן",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 164443,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/372e008fb3db51d061a6c6b5756d677b809754fd"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:7FIytPpFOyca8QvAdFjQPH",
+                "uid": "6486cf7599af02c0489d",
+                "title": "אנחנו משתנים",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 206479,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/b39a42f971f6c5895504a63bdde27f2e2bf1ae06"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:2MSEEYhUHw7mNxmTNYmDt7",
+                "uid": "2a6095e5cc3a2f746f73",
+                "title": "אמא אדמה",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 202522,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/e2d7930681b8b92919fcae29928400ae54c5ae41"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:0NqSQKigV8sQocwk2eez6Z",
+                "uid": "507aee3a209773347737",
+                "title": "תגידו לגורל",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 184320,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/14a407d84e7bcb1abd847492ea4148b00d5e27a2"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:7wUUyEPAxBZGBqsHndMlPP",
+                "uid": "923859792a37ab31d963",
+                "title": "קוטפים תותים",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 180883,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/2a39f83b79e7daf7d3ed237da1c1a3cf060fc175"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:06AxhPKxUYLd1a3iwVycDK",
+                "uid": "1a4fb089c19cac4ece01",
+                "title": "לא אכפת לי באמת",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 202779,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/a134ac8240e3955ecff40256bb9e8c5a82e7eec7"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:7zE02GrBUrytqrpQD32hrf",
+                "uid": "342dcafdf4cfc7a14d9a",
+                "title": "פשוט אל",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 142268,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/5880250dc01445101606b200f30cd41a62adb81e"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:5Oa6GSuLmzapxjHrOAkjIj",
+                "uid": "63827e3ebcbc7a800dc9",
+                "title": "הפוסט של הפוסט טראומה",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 195639,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/35843c89455c9c65da658e772d8cf4318b0544d0"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:3iY3D3IPkUHjTleB95nyDv",
+                "uid": "5f4b837d3b133e260e25",
+                "title": "משפחה במלחמה",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 193319,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/097ea73077d967ede276fec264601e04490cfa38"
+                },
+                "entityType": "track"
+              },
+              {
+                "uri": "spotify:track:5d804O9m6ZAXLfHyk240Ck",
+                "uid": "55bd74c59849a9359e05",
+                "title": "עוקצים אותי",
+                "subtitle": "משפחת קליבר",
+                "isExplicit": false,
+                "isNineteenPlus": false,
+                "contentRatings": {
+                  "labels": []
+                },
+                "duration": 194639,
+                "isPlayable": true,
+                "playabilityReason": "PLAYABLE",
+                "audioPreview": {
+                  "format": "MP3_96",
+                  "url": "https://p.scdn.co/mp3-preview/859d08cc54a07bfe73837387b898bcbd06228042"
+                },
+                "entityType": "track"
+              }
+            ],
+            "visualIdentity": {
+              "backgroundBase": {
+                "alpha": 255,
+                "blue": 56,
+                "green": 56,
+                "red": 56
+              },
+              "backgroundTintedBase": {
+                "alpha": 255,
+                "blue": 88,
+                "green": 88,
+                "red": 88
+              },
+              "textBase": {
+                "alpha": 255,
+                "blue": 255,
+                "green": 255,
+                "red": 255
+              },
+              "textBrightAccent": {
+                "alpha": 255,
+                "blue": 255,
+                "green": 255,
+                "red": 255
+              },
+              "textSubdued": {
+                "alpha": 255,
+                "blue": 205,
+                "green": 205,
+                "red": 205
+              },
+              "image": [
+                {
+                  "url": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02e337888070287b49fa8b86e3",
+                  "maxHeight": 300,
+                  "maxWidth": 300
+                },
+                {
+                  "url": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00004851e337888070287b49fa8b86e3",
+                  "maxHeight": 64,
+                  "maxWidth": 64
+                },
+                {
+                  "url": "https://image-cdn-ak.spotifycdn.com/image/ab67616d0000b273e337888070287b49fa8b86e3",
+                  "maxHeight": 640,
+                  "maxWidth": 640
+                }
+              ]
+            }
+          },
+          "embeded_entity_uri": "spotify:artist:6yionLgW9s7T0cIrPWX7oB",
+          "defaultAudioFileObject": {
+            "passthrough": "NONE"
+          }
+        },
+        "settings": {
+          "rtl": false,
+          "session": {
+            "accessToken": "BQB8pH8bwkNsx5842EWQpLBLjiUuXjVYL6Fxj_-j3nNMYLjknT4JbnfW2twPOz0FnZiiE6QAkGG0y1YIT3cDE6CNE9c8YL_2_-M1x3a9KbSEysUss_f9GYQoVBTCgpNMDVerCaNZW7k",
+            "accessTokenExpirationTimestampMs": 1779726451785,
+            "isAnonymous": true
+          },
+          "clientId": "ab9ad0d96a624805a7d51e8868df1f97",
+          "entityContext": "artist",
+          "isMobile": false,
+          "isSafari": false,
+          "isIOS": false,
+          "isTablet": false,
+          "isDarkMode": false
+        },
+        "machineState": {
+          "initialized": false,
+          "showOverflowMenu": false,
+          "playbackMode": "unknown",
+          "currentPreviewTrackIndex": 0,
+          "platformSupportsEncryptedContent": false
+        }
+      },
+      "config": {
+        "correlationId": "76ff11f3d838afe00916ee3349f4d518",
+        "strings": {
+          "en": {
+            "translation": {}
+          }
+        },
+        "locale": "en",
+        "clientId": "ab9ad0d96a624805a7d51e8868df1f97",
+        "restrictionId": ""
+      },
+      "_sentryTraceData": "80acc8d4deb53b422dd8d6e7cbfb8471-ffb211ac3b6e907a-0",
+      "_sentryBaggage": "sentry-environment=production,sentry-release=4d87ddc1041594066b5b51d5ab5c87a39ecd8120,sentry-public_key=4cc707ab12ea4779b417479c0550a5cb,sentry-trace_id=80acc8d4deb53b422dd8d6e7cbfb8471,sentry-org_id=22381,sentry-sampled=false,sentry-sample_rand=0.8206771855271302,sentry-sample_rate=0"
+    },
+    "__N_SSP": true
+  },
+  "page": "/artist/[id]",
+  "query": {
+    "id": "6yionLgW9s7T0cIrPWX7oB"
+  },
+  "buildId": "8e9b282c-dd12-4e24-b7a7-c62eea5bb676",
+  "assetPrefix": "https://embed-cdn.spotifycdn.com",
+  "isFallback": false,
+  "isExperimentalCompile": false,
+  "gssp": true,
+  "scriptLoader": []
+}

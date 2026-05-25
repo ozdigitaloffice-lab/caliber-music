@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* ─── Caliber Family — Kinetic Brutalism tokens ───────────────────────── */
+@theme {
+  --color-bg: #09090B;
+  --color-fg: #FAFAFA;
+  --color-muted: #18181B;
+  --color-muted-fg: #A1A1AA;
+  --color-accent: #DFE104;       /* Acid Yellow */
+  --color-accent-fg: #000000;
+  --color-secondary-accent: #FF3D00;  /* Blood Orange */
+  --color-border: #27272A;
+  --color-border-strong: #3F3F46;
+
+  --radius-card: 0px;
+  --radius-button: 0px;
+
+  /* Fonts come from next/font in layout.tsx as CSS variables */
+  --font-display-he: var(--font-display), var(--font-heebo), system-ui;
+  --font-display-en: var(--font-grotesk), system-ui;
+  --font-body: var(--font-heebo), system-ui;
+  --font-mono: var(--font-mono-code), ui-monospace, monospace;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+html {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  scroll-behavior: auto;        /* Lenis takes over smoothness */
+  scrollbar-color: var(--color-accent) var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "ss02";
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+
+/* ─── Marquee animation (CSS-only, GPU-friendly) ─────────────────────── */
+@keyframes marquee-rtl {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+@keyframes marquee-ltr {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-ltr 22s linear infinite;
+  will-change: transform;
+}
+.marquee-track-reverse {
+  animation: marquee-rtl 22s linear infinite;
+  will-change: transform;
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .marquee-track-reverse {
+    animation: none;
+  }
+}
+
+/* ─── Utility: brutalist card border ─────────────────────────────────── */
+.brutal-border {
+  border: 2px solid var(--color-border-strong);
+}
+.brutal-border-accent {
+  border: 2px solid var(--color-accent);
+}

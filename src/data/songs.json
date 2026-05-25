@@ -1,0 +1,447 @@
+{
+  "artist": {
+    "name": "משפחת קליבר",
+    "apple": {
+      "artistId": "1873911260",
+      "url": "https://music.apple.com/us/artist/1873911260"
+    },
+    "spotify": {
+      "artistId": "6yionLgW9s7T0cIrPWX7oB",
+      "url": "https://open.spotify.com/artist/6yionLgW9s7T0cIrPWX7oB",
+      "embedUrl": "https://open.spotify.com/embed/artist/6yionLgW9s7T0cIrPWX7oB"
+    },
+    "youtube": {
+      "channelId": "UCpU0SZAM5oDo6V10KJpNpYQ",
+      "url": "https://www.youtube.com/channel/UCpU0SZAM5oDo6V10KJpNpYQ"
+    }
+  },
+  "songs": [
+    {
+      "title": "אמא אדמה",
+      "releaseDate": "2026-05-12",
+      "durationSec": 202,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3b/0d/8f/3b0d8f2d-eeca-0d4f-ecc6-b10edf3af294/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/22/61/96/22619626-df40-bbe4-6222-1b07dd6de704/mzaf_3853431165546675156.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 6768806288,
+        "url": "https://music.apple.com/us/album/%D7%90%D7%9E%D7%90-%D7%90%D7%93%D7%9E%D7%94/6768806285"
+      },
+      "youtube": {
+        "videoId": "JSQMZ9t3_gs",
+        "url": "https://www.youtube.com/watch?v=JSQMZ9t3_gs",
+        "thumb": "https://i.ytimg.com/vi/JSQMZ9t3_gs/maxresdefault.jpg",
+        "durationSec": 203.0,
+        "source": "search",
+        "title": "אמא אדמה"
+      },
+      "spotify": {
+        "trackId": "2MSEEYhUHw7mNxmTNYmDt7",
+        "url": "https://open.spotify.com/track/2MSEEYhUHw7mNxmTNYmDt7",
+        "embedUrl": "https://open.spotify.com/embed/track/2MSEEYhUHw7mNxmTNYmDt7",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "אח יא איראן",
+      "releaseDate": "2026-03-19",
+      "durationSec": 119,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fb/df/cf/fbdfcf5a-0bdc-f4ef-b6a2-9d491bbd6af9/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/0a/e5/340ae5b3-91be-b126-4296-7f56e0007943/mzaf_10625640888820496938.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1886421773,
+        "url": "https://music.apple.com/us/album/%D7%90%D7%97-%D7%99%D7%90-%D7%90%D7%99%D7%A8%D7%90%D7%9F/1886421772"
+      },
+      "youtube": {
+        "videoId": "IJ31LlZU4NY",
+        "url": "https://www.youtube.com/watch?v=IJ31LlZU4NY",
+        "thumb": "https://i.ytimg.com/vi/IJ31LlZU4NY/maxresdefault.jpg",
+        "durationSec": 120.0,
+        "source": "search",
+        "title": "אח יא איראן"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/אח יא איראן משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "נגמר הזמן",
+      "releaseDate": "2026-02-23",
+      "durationSec": 164,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6d/1a/35/6d1a35fb-6884-b079-5ded-c9cb944b4214/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/6f/e9/876fe959-aae3-79d1-87a7-e7fe922da4a2/mzaf_10788885516702845798.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1880167309,
+        "url": "https://music.apple.com/us/album/%D7%A0%D7%92%D7%9E%D7%A8-%D7%94%D7%96%D7%9E%D7%9F/1880166888"
+      },
+      "youtube": {
+        "videoId": "qDB4reaYLXM",
+        "url": "https://www.youtube.com/watch?v=qDB4reaYLXM",
+        "thumb": "https://i.ytimg.com/vi/qDB4reaYLXM/maxresdefault.jpg",
+        "durationSec": 165.0,
+        "source": "search",
+        "title": "נגמר הזמן"
+      },
+      "spotify": {
+        "trackId": "5FSary1bsS1PAMxuLssTyV",
+        "url": "https://open.spotify.com/track/5FSary1bsS1PAMxuLssTyV",
+        "embedUrl": "https://open.spotify.com/embed/track/5FSary1bsS1PAMxuLssTyV",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "הפוסט של הפוסט טראומה",
+      "releaseDate": "2026-02-23",
+      "durationSec": 195,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/aa/28/11/aa281180-6059-cf31-4441-bca2139d6754/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d6/62/ca/d662caed-c906-61b8-8aa4-c6446ffbd49c/mzaf_8654590744481861607.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1880294800,
+        "url": "https://music.apple.com/us/album/%D7%94%D7%A4%D7%95%D7%A1%D7%98-%D7%A9%D7%9C-%D7%94%D7%A4%D7%95%D7%A1%D7%98-%D7%98%D7%A8%D7%90%D7%95%D7%9E%D7%94/1880294799"
+      },
+      "youtube": {
+        "videoId": "IkZ_WoCY1-g",
+        "url": "https://www.youtube.com/watch?v=IkZ_WoCY1-g",
+        "thumb": "https://i.ytimg.com/vi/IkZ_WoCY1-g/maxresdefault.jpg",
+        "durationSec": 196.0,
+        "source": "search",
+        "title": "הפוסט של הפוסט טראומה"
+      },
+      "spotify": {
+        "trackId": "5Oa6GSuLmzapxjHrOAkjIj",
+        "url": "https://open.spotify.com/track/5Oa6GSuLmzapxjHrOAkjIj",
+        "embedUrl": "https://open.spotify.com/embed/track/5Oa6GSuLmzapxjHrOAkjIj",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "תגידו לגורל",
+      "releaseDate": "2026-01-27",
+      "durationSec": 184,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/de/c3/0c/dec30c54-5b6d-71e3-2f1c-4886b0d91bbc/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cc/b0/54/ccb0543b-f030-e9d2-6740-3cb935420c0b/mzaf_16917531235589627221.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1872625241,
+        "url": "https://music.apple.com/us/album/%D7%AA%D7%92%D7%99%D7%93%D7%95-%D7%9C%D7%92%D7%95%D7%A8%D7%9C/1872625240"
+      },
+      "youtube": {
+        "videoId": "ZHhWiO7LjPY",
+        "url": "https://www.youtube.com/watch?v=ZHhWiO7LjPY",
+        "thumb": "https://i.ytimg.com/vi/ZHhWiO7LjPY/maxresdefault.jpg",
+        "durationSec": 185.0,
+        "source": "search",
+        "title": "תגידו לגורל"
+      },
+      "spotify": {
+        "trackId": "0NqSQKigV8sQocwk2eez6Z",
+        "url": "https://open.spotify.com/track/0NqSQKigV8sQocwk2eez6Z",
+        "embedUrl": "https://open.spotify.com/embed/track/0NqSQKigV8sQocwk2eez6Z",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "פשוט אל",
+      "releaseDate": "2026-01-16",
+      "durationSec": 142,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/03/3e/2b/033e2bf4-7e58-b951-54fc-2f3ffc14075c/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/67/b3/3167b399-f989-b0ed-3d09-2f45053099ee/mzaf_9527179253153871420.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1869792337,
+        "url": "https://music.apple.com/us/album/%D7%A4%D7%A9%D7%95%D7%98-%D7%90%D7%9C/1869792336"
+      },
+      "youtube": {
+        "videoId": "S1KgYH6fciQ",
+        "url": "https://www.youtube.com/watch?v=S1KgYH6fciQ",
+        "thumb": "https://i.ytimg.com/vi/S1KgYH6fciQ/maxresdefault.jpg",
+        "durationSec": 143.0,
+        "source": "search",
+        "title": "פשוט אל"
+      },
+      "spotify": {
+        "trackId": "7zE02GrBUrytqrpQD32hrf",
+        "url": "https://open.spotify.com/track/7zE02GrBUrytqrpQD32hrf",
+        "embedUrl": "https://open.spotify.com/embed/track/7zE02GrBUrytqrpQD32hrf",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "אנחנו משתנים",
+      "releaseDate": "2025-12-01",
+      "durationSec": 206,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2f/7f/29/2f7f2954-4ccb-8e51-f733-a346747d8845/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e8/52/73/e8527351-53c3-e364-d0f8-3b56ff88d72a/mzaf_11835560901695966522.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1857796274,
+        "url": "https://music.apple.com/us/album/%D7%90%D7%A0%D7%97%D7%A0%D7%95-%D7%9E%D7%A9%D7%AA%D7%A0%D7%99%D7%9D/1857796273"
+      },
+      "youtube": {
+        "videoId": "xrTlGH4TLzc",
+        "url": "https://www.youtube.com/watch?v=xrTlGH4TLzc",
+        "thumb": "https://i.ytimg.com/vi/xrTlGH4TLzc/maxresdefault.jpg",
+        "durationSec": 207.0,
+        "source": "search",
+        "title": "אנחנו משתנים"
+      },
+      "spotify": {
+        "trackId": "7FIytPpFOyca8QvAdFjQPH",
+        "url": "https://open.spotify.com/track/7FIytPpFOyca8QvAdFjQPH",
+        "embedUrl": "https://open.spotify.com/embed/track/7FIytPpFOyca8QvAdFjQPH",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "לבנה זוהרים - אוהבים אתכם בארגזים",
+      "releaseDate": "2025-11-17",
+      "durationSec": 146,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/9f/a6/189fa65e-4fcb-9dc9-ca10-8af0acb89603/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fb/02/42/fb0242d6-354e-9a68-9cd6-43a7bf74cd3a/mzaf_17531591229866490249.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1854869956,
+        "url": "https://music.apple.com/us/album/%D7%9C%D7%91%D7%A0%D7%94-%D7%96%D7%95%D7%94%D7%A8%D7%99%D7%9D-%D7%90%D7%95%D7%94%D7%91%D7%99%D7%9D-%D7%90%D7%AA%D7%9B%D7%9D-%D7%91%D7%90%D7%A8%D7%92%D7%96%D7%99%D7%9D/1854869955"
+      },
+      "youtube": {
+        "videoId": "JIW6d2n9GOI",
+        "url": "https://www.youtube.com/watch?v=JIW6d2n9GOI",
+        "thumb": "https://i.ytimg.com/vi/JIW6d2n9GOI/maxresdefault.jpg",
+        "durationSec": 147.0,
+        "source": "search",
+        "title": "לבנה זוהרים - אוהבים אתכם בארגזים"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/לבנה זוהרים - אוהבים אתכם בארגזים משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "משפחה במלחמה",
+      "releaseDate": "2025-11-06",
+      "durationSec": 193,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ae/7b/60/ae7b601e-7380-885e-ab8f-a5da2b8db141/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3a/8b/f8/3a8bf8c4-3216-1ba0-0580-24c23e5b3ffa/mzaf_9001915884561761640.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1852368332,
+        "url": "https://music.apple.com/us/album/%D7%9E%D7%A9%D7%A4%D7%97%D7%94-%D7%91%D7%9E%D7%9C%D7%97%D7%9E%D7%94/1852368331"
+      },
+      "youtube": {
+        "videoId": "VLRJwUrjRII",
+        "url": "https://www.youtube.com/watch?v=VLRJwUrjRII",
+        "thumb": "https://i.ytimg.com/vi/VLRJwUrjRII/maxresdefault.jpg",
+        "durationSec": 194.0,
+        "source": "search",
+        "title": "משפחה במלחמה"
+      },
+      "spotify": {
+        "trackId": "3iY3D3IPkUHjTleB95nyDv",
+        "url": "https://open.spotify.com/track/3iY3D3IPkUHjTleB95nyDv",
+        "embedUrl": "https://open.spotify.com/embed/track/3iY3D3IPkUHjTleB95nyDv",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "טיפ טיפ טף",
+      "releaseDate": "2025-11-05",
+      "durationSec": 135,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/52/0e/8d/520e8d05-857c-e451-9ab5-d5f330f1d8d1/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a1/35/72/a135721c-5759-995c-fba4-a32f33cdd61d/mzaf_9038207780691150672.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1852194893,
+        "url": "https://music.apple.com/us/album/%D7%98%D7%99%D7%A4-%D7%98%D7%99%D7%A4-%D7%98%D7%A3/1852194892"
+      },
+      "youtube": {
+        "videoId": "QqJzBVeF-wQ",
+        "url": "https://www.youtube.com/watch?v=QqJzBVeF-wQ",
+        "thumb": "https://i.ytimg.com/vi/QqJzBVeF-wQ/maxresdefault.jpg",
+        "durationSec": 136.0,
+        "source": "search",
+        "title": "טיפ טיפ טף"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/טיפ טיפ טף משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "עוקצים אותי",
+      "releaseDate": "2025-10-22",
+      "durationSec": 194,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/eb/95/64/eb9564bb-0337-f280-5d5b-79bd945c0a19/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/87/ab/4587ab23-c45a-3990-32c5-26141282579e/mzaf_13072418368294554910.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851928561,
+        "url": "https://music.apple.com/us/album/%D7%A2%D7%95%D7%A7%D7%A6%D7%99%D7%9D-%D7%90%D7%95%D7%AA%D7%99/1851928560"
+      },
+      "youtube": {
+        "videoId": "63BLvGN7jRs",
+        "url": "https://www.youtube.com/watch?v=63BLvGN7jRs",
+        "thumb": "https://i.ytimg.com/vi/63BLvGN7jRs/maxresdefault.jpg",
+        "durationSec": 195.0,
+        "source": "search",
+        "title": "עוקצים אותי"
+      },
+      "spotify": {
+        "trackId": "5d804O9m6ZAXLfHyk240Ck",
+        "url": "https://open.spotify.com/track/5d804O9m6ZAXLfHyk240Ck",
+        "embedUrl": "https://open.spotify.com/embed/track/5d804O9m6ZAXLfHyk240Ck",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "מי אני ? מה אני ?",
+      "releaseDate": "2025-10-17",
+      "durationSec": 165,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/41/7c/c9/417cc92a-0b30-4af2-9eb3-9d0faa3badf0/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e3/f2/b5/e3f2b518-d41c-4aba-cb1f-792e9ed2912d/mzaf_6376465192810698168.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851783070,
+        "url": "https://music.apple.com/us/album/%D7%9E%D7%99-%D7%90%D7%A0%D7%99-%D7%9E%D7%94-%D7%90%D7%A0%D7%99/1851783069"
+      },
+      "youtube": {
+        "videoId": "wIi5RF_9sRE",
+        "url": "https://www.youtube.com/watch?v=wIi5RF_9sRE",
+        "thumb": "https://i.ytimg.com/vi/wIi5RF_9sRE/maxresdefault.jpg",
+        "durationSec": 164.0,
+        "source": "search",
+        "title": "מי אני ? מה אני ?"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/מי אני ? מה אני ? משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "יאללה תתעורר !!!",
+      "releaseDate": "2025-10-15",
+      "durationSec": 143,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6a/65/11/6a65118b-8bfb-2e7f-cc38-719394f5b2b1/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/16/12/c4/1612c496-5ce4-6c2c-074f-a3c2311e12b8/mzaf_11608163856979243336.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851931863,
+        "url": "https://music.apple.com/us/album/%D7%99%D7%90%D7%9C%D7%9C%D7%94-%D7%AA%D7%AA%D7%A2%D7%95%D7%A8%D7%A8/1851931862"
+      },
+      "youtube": {
+        "videoId": "Ru0j8sx1EKA",
+        "url": "https://www.youtube.com/watch?v=Ru0j8sx1EKA",
+        "thumb": "https://i.ytimg.com/vi/Ru0j8sx1EKA/maxresdefault.jpg",
+        "durationSec": 144.0,
+        "source": "search",
+        "title": "יאללה תתעורר !!! - משפחת קליבר"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/יאללה תתעורר !!! משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "זה קשה ? לא קשה...",
+      "releaseDate": "2025-10-10",
+      "durationSec": 158,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/ff/bf/00ffbfdd-6ffe-47ef-5e9b-f7c5008f2886/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/96/a4/07/96a407c6-d807-7fd1-b528-b9127e26849c/mzaf_10702515507010830683.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851783112,
+        "url": "https://music.apple.com/us/album/%D7%96%D7%94-%D7%A7%D7%A9%D7%94-%D7%9C%D7%90-%D7%A7%D7%A9%D7%94/1851783111"
+      },
+      "youtube": {
+        "videoId": "b0GdI2KSrI4",
+        "url": "https://www.youtube.com/watch?v=b0GdI2KSrI4",
+        "thumb": "https://i.ytimg.com/vi/b0GdI2KSrI4/maxresdefault.jpg",
+        "durationSec": 159.0,
+        "source": "search",
+        "title": "זה קשה ? לא קשה..."
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/זה קשה ? לא קשה... משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "קוטפים תותים",
+      "releaseDate": "2025-10-06",
+      "durationSec": 180,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8d/89/ec/8d89ec84-91a2-d1e7-7d1c-bdd0ecf9fbdb/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8e/8e/79/8e8e796d-3685-16f8-92e7-85eeabd8dcd9/mzaf_8942229112307793329.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851783376,
+        "url": "https://music.apple.com/us/album/%D7%A7%D7%95%D7%98%D7%A4%D7%99%D7%9D-%D7%AA%D7%95%D7%AA%D7%99%D7%9D/1851783374"
+      },
+      "youtube": {
+        "videoId": "ZsRhcA9oSX8",
+        "url": "https://www.youtube.com/watch?v=ZsRhcA9oSX8",
+        "thumb": "https://i.ytimg.com/vi/ZsRhcA9oSX8/maxresdefault.jpg",
+        "durationSec": 181.0,
+        "source": "search",
+        "title": "קוטפים תותים"
+      },
+      "spotify": {
+        "trackId": "7wUUyEPAxBZGBqsHndMlPP",
+        "url": "https://open.spotify.com/track/7wUUyEPAxBZGBqsHndMlPP",
+        "embedUrl": "https://open.spotify.com/embed/track/7wUUyEPAxBZGBqsHndMlPP",
+        "matchType": "exact"
+      }
+    },
+    {
+      "title": "נופר על הכביש",
+      "releaseDate": "2025-10-06",
+      "durationSec": 112,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5a/9b/8c/5a9b8c00-7e21-222d-c0e2-3e092ef5eeba/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/26/9a/87269a4b-9d25-b112-b1e3-051bbca21ce3/mzaf_6909800236990200742.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1851908205,
+        "url": "https://music.apple.com/us/album/%D7%A0%D7%95%D7%A4%D7%A8-%D7%A2%D7%9C-%D7%94%D7%9B%D7%91%D7%99%D7%A9/1851908204"
+      },
+      "youtube": {
+        "videoId": "JuJyHSVYc9s",
+        "url": "https://www.youtube.com/watch?v=JuJyHSVYc9s",
+        "thumb": "https://i.ytimg.com/vi/JuJyHSVYc9s/maxresdefault.jpg",
+        "durationSec": 113.0,
+        "source": "search",
+        "title": "נופר על הכביש"
+      },
+      "spotify": {
+        "url": "https://open.spotify.com/search/נופר על הכביש משפחת קליבר",
+        "matchType": "search-fallback"
+      }
+    },
+    {
+      "title": "לא אכפת לי באמת",
+      "releaseDate": "2025-10-05",
+      "durationSec": 202,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/60/21/ca/6021caac-875e-645e-24b8-d8680aa5f05e/artwork.jpg/1000x1000bb.jpg",
+      "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e5/77/cf/e577cf5b-5f09-04c2-a65d-80e3421f0e30/mzaf_12541166892185435007.plus.aac.p.m4a",
+      "apple": {
+        "trackId": 1869745763,
+        "url": "https://music.apple.com/us/album/%D7%9C%D7%90-%D7%90%D7%9B%D7%A4%D7%AA-%D7%9C%D7%99-%D7%91%D7%90%D7%9E%D7%AA/1869745762"
+      },
+      "youtube": {
+        "videoId": "TF4THLqhN1E",
+        "url": "https://www.youtube.com/watch?v=TF4THLqhN1E",
+        "thumb": "https://i.ytimg.com/vi/TF4THLqhN1E/maxresdefault.jpg",
+        "durationSec": 203.0,
+        "source": "search",
+        "title": "לא אכפת לי באמת"
+      },
+      "spotify": {
+        "trackId": "06AxhPKxUYLd1a3iwVycDK",
+        "url": "https://open.spotify.com/track/06AxhPKxUYLd1a3iwVycDK",
+        "embedUrl": "https://open.spotify.com/embed/track/06AxhPKxUYLd1a3iwVycDK",
+        "matchType": "exact"
+      }
+    }
+  ],
+  "stats": {
+    "totalSongs": 17,
+    "withYouTube": 17,
+    "spotifyExact": 10,
+    "spotifySearchFallback": 7,
+    "spotifyFallbackTitles": [
+      "זה קשה ? לא קשה...",
+      "טיפ טיפ טף",
+      "אח יא איראן",
+      "מי אני ? מה אני ?",
+      "לבנה זוהרים - אוהבים אתכם בארגזים",
+      "יאללה תתעורר !!!",
+      "נופר על הכביש"
+    ],
+    "missingYouTube": []
+  }
+}
