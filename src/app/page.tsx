@@ -1,6 +1,9 @@
+import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { Marquee } from "@/components/Marquee";
 import { SongGrid } from "@/components/SongGrid";
+import { AboutSection } from "@/components/AboutSection";
+import { CollabContact } from "@/components/CollabContact";
 import { AboutStrip } from "@/components/AboutStrip";
 import { Footer } from "@/components/Footer";
 import { songsData, type Song } from "@/lib/songs";
@@ -17,7 +20,6 @@ function curate(songs: Song[]) {
   const middle = songs.filter(
     (s) => !HERO_TITLES.includes(s.title) && !DEEMPHASIZE_TITLES.includes(s.title),
   );
-  // De-emphasized songs go at the END of the grid (after middle) — still present, just less prominent.
   const orderedForGrid = [...heroSongs, ...middle, ...deemphasized];
   return { heroSongs, orderedForGrid };
 }
@@ -34,31 +36,30 @@ export default function Home() {
     .slice(0, 8)
     .map((s) => s.title.toUpperCase());
 
-  const dates = songs.map((s) => new Date(s.releaseDate));
-  const monthsActive = Math.max(
-    1,
-    Math.round(
-      (Math.max(...dates.map((d) => d.getTime())) -
-        Math.min(...dates.map((d) => d.getTime()))) /
-        (1000 * 60 * 60 * 24 * 30),
-    ),
-  );
-
   // Newest single's album art becomes the hero backdrop.
   const heroImage = heroSongs[0]?.artwork ?? songs[0].artwork;
 
   return (
-    <main>
-      <Marquee items={topMarquee} accent />
-      <Hero heroImage={heroImage} bandName={artist.name} />
-      <SongGrid songs={orderedForGrid} />
-      <AboutStrip totalSongs={songs.length} monthsActive={monthsActive} />
-      <Marquee items={bottomMarquee} reverse />
-      <Footer
-        spotifyUrl={artist.spotify.url}
-        appleUrl={artist.apple.url}
-        youtubeUrl={artist.youtube.url}
-      />
-    </main>
+    <>
+      <Nav />
+      <main>
+        <Marquee items={topMarquee} accent />
+        <section id="hero">
+          <Hero heroImage={heroImage} bandName={artist.name} />
+        </section>
+        <section id="music">
+          <SongGrid songs={orderedForGrid} />
+        </section>
+        <AboutSection />
+        <CollabContact />
+        <AboutStrip totalSongs={songs.length} />
+        <Marquee items={bottomMarquee} reverse />
+        <Footer
+          spotifyUrl={artist.spotify.url}
+          appleUrl={artist.apple.url}
+          youtubeUrl={artist.youtube.url}
+        />
+      </main>
+    </>
   );
 }

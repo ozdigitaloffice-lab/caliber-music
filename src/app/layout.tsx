@@ -52,7 +52,7 @@ export default function RootLayout({
       dir="rtl"
       className={`${heebo.variable} ${suez.variable} ${grotesk.variable} ${mono.variable} antialiased`}
     >
-      <body className="min-h-screen bg-[var(--color-bg)] text-[var(--color-fg)]">
+      <body className="min-h-screen bg-[var(--color-bg)] pt-[58px] text-[var(--color-fg)] md:pt-[64px]">
         <SmoothScroll />
         <Grain />
         {children}

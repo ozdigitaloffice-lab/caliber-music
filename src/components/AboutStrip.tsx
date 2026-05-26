@@ -1,25 +1,18 @@
 /**
- * Static "by the numbers" strip — purely visual hook, no interactivity.
- * Hip-hop sites love big stat blocks because they read like a record-label
- * one-sheet.
+ * "By the numbers" strip — reads like a record-label one-sheet. Matches the
+ * stat trio from the previous site (songs / listeners / collabs) but with
+ * the current 17-singles count and our acid-yellow type treatment.
  */
-export function AboutStrip({
-  totalSongs,
-  monthsActive,
-}: {
-  totalSongs: number;
-  monthsActive: number;
-}) {
+export function AboutStrip({ totalSongs }: { totalSongs: number }) {
   const stats = [
-    { value: totalSongs.toString(), label: "סינגלים" },
-    { value: monthsActive.toString(), label: "חודשים" },
-    { value: "3", label: "פלטפורמות" },
-    { value: "∞", label: "אנרגיה" },
+    { value: totalSongs.toString(), label: "שירים" },
+    { value: "5K+", label: "מאזינים" },
+    { value: "10+", label: "שיתופי פעולה" },
   ];
 
   return (
     <section className="relative border-y-2 border-[var(--color-accent)] bg-[var(--color-muted)] py-12 md:py-16">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:px-8">
+      <div className="mx-auto grid max-w-5xl grid-cols-3 gap-6 px-4 md:px-8">
         {stats.map((s, i) => (
           <div key={i} className="text-center">
             <div
