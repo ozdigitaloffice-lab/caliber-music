@@ -1,5 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
+import { HeroSequence } from "@/components/HeroSequence";
 import { Marquee } from "@/components/Marquee";
 import { SongGrid } from "@/components/SongGrid";
 import { AboutSection } from "@/components/AboutSection";
@@ -7,6 +8,7 @@ import { CollabContact } from "@/components/CollabContact";
 import { AboutStrip } from "@/components/AboutStrip";
 import { Footer } from "@/components/Footer";
 import { songsData, type Song } from "@/lib/songs";
+import { loadHeroManifest } from "@/lib/heroManifest";
 
 // Hero tiles (top 2 large) and songs we want de-emphasized in the marquee + grid tail.
 // Editing this here keeps the curation explicit and easy to re-order later.
@@ -34,15 +36,23 @@ export default function Home() {
     .slice(0, 8)
     .map((s) => s.title.toUpperCase());
 
-  // Newest single's album art becomes the hero backdrop.
+  // Newest single's album art becomes the hero backdrop (fallback).
   const heroImage = heroSongs[0]?.artwork ?? songs[0].artwork;
+
+  // If the user has built the hero image-sequence (public/hero-seq/manifest.json),
+  // use the Apple-style scrub hero. Otherwise fall back to the static-image hero.
+  const heroManifest = loadHeroManifest();
 
   return (
     <>
       <Nav />
       <main>
         <section id="hero">
-          <Hero heroImage={heroImage} bandName={artist.name} />
+          {heroManifest ? (
+            <HeroSequence manifest={heroManifest} bandName={artist.name} />
+          ) : (
+            <Hero heroImage={heroImage} bandName={artist.name} />
+          )}
         </section>
         <section id="music">
           <SongGrid songs={orderedForGrid} />

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Printable sign for the hero video shoot.
+  Format: A3 landscape (420×297 mm). Print at 100% scale on A3 paper,
+  or scale up to A2/A1 for a bigger sign.
+
+  How to print on Windows:
+    1. Open this file in Chrome/Edge
+    2. Ctrl+P
+    3. "Destination: Save as PDF" → save → print the PDF
+       OR pick a real printer directly
+    4. Paper size: A3 landscape, Margins: None, Scale: 100% (Fit to page)
+
+  Holding tip: glue/tape it to a foamboard backing so it doesn't flop in the
+  wind or in the camera frame.
+-->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1190 842"
+     width="420mm" height="297mm"
+     style="background:#09090B">
+  <defs>
+    <!-- Suez One — heavy Hebrew slab serif, same font we use on the site -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Suez+One&amp;family=Space+Grotesk:wght@700&amp;display=swap');
+      .name { font-family: 'Suez One', serif; fill: #DFE104; }
+      .tag  { font-family: 'Space Grotesk', sans-serif; fill: #FAFAFA;
+              letter-spacing: 0.4em; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- Black canvas, full bleed -->
+  <rect width="1190" height="842" fill="#09090B"/>
+
+  <!-- Acid-yellow border (2cm inset) -->
+  <rect x="76" y="76" width="1038" height="690"
+        fill="none" stroke="#DFE104" stroke-width="6"/>
+
+  <!-- Band name, massive -->
+  <text x="595" y="450" class="name"
+        font-size="220" text-anchor="middle"
+        direction="rtl">משפחת קליבר</text>
+
+  <!-- Subtitle in latin -->
+  <text x="595" y="560" class="tag"
+        font-size="34" text-anchor="middle">HIP-HOP · TRAP · URBAN</text>
+
+  <!-- Bottom mark -->
+  <text x="595" y="720" class="tag"
+        font-size="22" text-anchor="middle"
+        opacity="0.5">CALIBER · FAMILY · 2026</text>
+</svg>
