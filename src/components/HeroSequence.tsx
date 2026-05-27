@@ -28,14 +28,14 @@ type Manifest = {
  */
 export function HeroSequence({
   manifest,
-  bandName,
 }: {
   manifest: Manifest;
-  bandName: string;
+  // (bandName kept in the type for parent compatibility but no longer rendered —
+  // see the JSX below; left out of the destructure to silence the unused-var lint)
+  bandName?: string;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const nameRef = useRef<HTMLHeadingElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const framesRef = useRef<HTMLImageElement[]>([]);
   const [progress, setProgress] = useState(0);
@@ -171,12 +171,11 @@ export function HeroSequence({
             currentIndex = target;
             drawFrame(imgs[target]);
           }
-          if (nameRef.current) {
-            nameRef.current.style.transform = `translateY(${-p * 110}%)`;
-            nameRef.current.style.opacity = `${1 - p}`;
-          }
+          // Overlay deepens with scroll, no text element to fade — the source
+          // video has the band name + branding baked in already, so a CSS
+          // overlay would just clash.
           if (overlayRef.current) {
-            overlayRef.current.style.opacity = `${0.65 + p * 0.31}`;
+            overlayRef.current.style.opacity = `${0.45 + p * 0.45}`;
           }
           displayedProgress = p;
         };
@@ -259,19 +258,7 @@ export function HeroSequence({
           </div>
         )}
 
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-          <h1
-            ref={nameRef}
-            className="font-[var(--font-display-he)] text-[18vw] font-black leading-[0.85] tracking-tight md:text-[14vw]"
-            style={{ textShadow: "0 4px 32px rgba(0,0,0,0.75)" }}
-          >
-            {bandName}
-          </h1>
-          <p className="mt-4 font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)] md:text-sm">
-            HIP-HOP · TRAP · URBAN
-          </p>
-        </div>
-
+        {/* Scroll cue only — band name removed so the video's own typography reads cleanly */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--color-muted-fg)]">
           <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em]">גלגל למטה</span>
           <span aria-hidden className="block h-10 w-px animate-pulse bg-[var(--color-accent)]" />
