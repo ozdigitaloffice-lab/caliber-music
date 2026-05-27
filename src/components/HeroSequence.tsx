@@ -154,13 +154,18 @@ export function HeroSequence({
         const SETTLE_EPSILON = 0.0005;
         let targetProgress = 0;
         let displayedProgress = -1;
+        // The scrub uses only the first 150vh of the pinned scroll range.
+        // The section is 300vh tall (sticky child 100vh + scrub 150vh + hold
+        // 50vh), so after the video reaches its last frame the sticky child
+        // stays pinned for another ~50vh of scroll, showing the last frame
+        // before the song grid takes over. User-tunable below.
+        const SCRUB_VH = 150;
         const computeProgress = () => {
           const rect = section.getBoundingClientRect();
-          // Scrub finishes when section bottom hits top of viewport.
-          const scrubRange = rect.height - window.innerHeight;
-          if (scrubRange <= 0) return 0;
+          const scrubPx = window.innerHeight * (SCRUB_VH / 100);
+          if (scrubPx <= 0) return 0;
           const scrolled = -rect.top;
-          return Math.max(0, Math.min(1, scrolled / scrubRange));
+          return Math.max(0, Math.min(1, scrolled / scrubPx));
         };
         const render = (p: number) => {
           const target = Math.min(
@@ -224,7 +229,7 @@ export function HeroSequence({
   return (
     <section
       ref={sectionRef}
-      className="relative h-[250vh] w-full"
+      className="relative h-[300vh] w-full"
       aria-label="פתיח"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
