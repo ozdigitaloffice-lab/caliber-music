@@ -116,7 +116,7 @@ export function SiteLoader({
                 {percent}%
               </div>
               <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.3em] text-[var(--color-muted-fg)] md:text-xs">
-                שווה לחכות כמה שניות והאתר עולה
+                שווה לחכות כמה שניות והאתר עולה!
               </p>
             </motion.div>
 
@@ -234,7 +234,6 @@ const LOADING_MESSAGES = [
   "מכוונים את הביטים",
   "מרימים את הוליום",
   "מחממים את הרמקולים",
-  "סטודיו פתוח · גלילה לבוא",
 ];
 
 function CyclingMessage() {
