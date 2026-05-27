@@ -54,11 +54,11 @@ OUT_DIR = ROOT / "public" / "hero-seq"
 # component then cover-fits the square to whatever viewport ratio is on screen,
 # cropping equal margins from sides (desktop) or top+bottom (mobile portrait).
 # Action centered in the square frame = visible everywhere.
-FPS = 24             # cinematic feel; smooth-enough scrub at GSAP's default lerp
+FPS = 30             # match source rate → no downsample artifacts, more frames for smoother scrub
 WIDTH = 720
 HEIGHT = 720
-JPG_QUALITY = 7      # ffmpeg -q:v: 2=best, 31=worst. 7 ≈ q75; sweet spot for action shots.
-MAX_FRAMES = 288     # 12 seconds @ 24fps. Source longer than this gets trimmed.
+JPG_QUALITY = 8      # ffmpeg -q:v: 2=best, 31=worst. 8 ≈ q72; offsets the extra frame count.
+MAX_FRAMES = 360     # 12 seconds @ 30fps. Source longer than this gets trimmed.
 
 
 def main() -> None:

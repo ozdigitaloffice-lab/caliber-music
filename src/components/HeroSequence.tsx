@@ -98,6 +98,12 @@ export function HeroSequence({
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         };
 
+        // Cover-fit with a TOP bias when the canvas is wider than the source:
+        // the source video has the people standing with their heads near the
+        // top third of the square frame. Pure center-crop hides the heads on
+        // landscape (desktop) viewports. Biasing dy toward 0.35 keeps faces
+        // visible while still showing the walker in the lower part.
+        const POSITION_Y_BIAS = 0.35;   // 0 = show full top, 0.5 = center, 1 = show full bottom
         const drawFrame = (frame: HTMLImageElement) => {
           const w = canvas.clientWidth;
           const h = canvas.clientHeight;
@@ -105,15 +111,19 @@ export function HeroSequence({
           const cA = w / h;
           let dw, dh, dx, dy;
           if (fA > cA) {
+            // source wider than canvas → height-fit; image overflows horizontally
             dh = h;
             dw = h * fA;
             dx = (w - dw) / 2;
             dy = 0;
           } else {
+            // source taller (or square) → width-fit; image overflows vertically
             dw = w;
             dh = w / fA;
             dx = 0;
-            dy = (h - dh) / 2;
+            // dy ranges from 0 (top of image flush with top of canvas) to
+            // (h - dh) which is negative (bottom of image flush with bottom).
+            dy = (h - dh) * POSITION_Y_BIAS;
           }
           ctx.clearRect(0, 0, w, h);
           ctx.drawImage(frame, dx, dy, dw, dh);
@@ -130,27 +140,29 @@ export function HeroSequence({
         window.addEventListener("resize", resizeHandler);
 
         // Native scroll handler — bypasses GSAP ScrollTrigger entirely after
-        // ScrollTrigger refused to register from inside a bundled module
-        // under Turbopack + React 19 StrictMode (the trigger object was
-        // never showing up in ScrollTrigger.getAll() even though the code
-        // ran). The math is simple enough: project the section's
-        // top-relative scroll position into [0,1] and pick a frame.
-        let pendingProgress = 0;
-        let lastProgress = -1;
+        // it refused to register from inside the bundled module under
+        // Turbopack + React 19 StrictMode. Simple math: project the
+        // section's top-relative scroll position into [0,1] and pick a frame.
+        //
+        // Smoothing: we keep a separate `targetProgress` (where scroll says
+        // we should be) and `currentProgress` (where we're actually rendering).
+        // Each rAF tick, current lerps 12% of the way toward target. Result:
+        // even a fast wheel-tick that would otherwise jump ~10 frames at once
+        // renders as a quick play-through of those 10 frames instead of a
+        // visible skip. Apple's iPhone showcase uses the same trick.
+        const LERP_FACTOR = 0.12;       // 0.05 = silkier (laggier), 0.2 = snappier (more visible skips)
+        const SETTLE_EPSILON = 0.0005;
+        let targetProgress = 0;
+        let displayedProgress = -1;
         const computeProgress = () => {
           const rect = section.getBoundingClientRect();
-          // Total "scrub distance" = section height − one viewport
-          // (because once bottom of section hits top of viewport, scrub is done).
+          // Scrub finishes when section bottom hits top of viewport.
           const scrubRange = rect.height - window.innerHeight;
           if (scrubRange <= 0) return 0;
-          const scrolled = -rect.top; // how far past the section's top we are
+          const scrolled = -rect.top;
           return Math.max(0, Math.min(1, scrolled / scrubRange));
         };
-        const tick = () => {
-          rafId = 0;
-          const p = pendingProgress;
-          if (p === lastProgress) return;
-          lastProgress = p;
+        const render = (p: number) => {
           const target = Math.min(
             imgs.length - 1,
             Math.floor(p * (imgs.length - 1)),
@@ -159,7 +171,6 @@ export function HeroSequence({
             currentIndex = target;
             drawFrame(imgs[target]);
           }
-          // Overlay + name fade follow the same progress
           if (nameRef.current) {
             nameRef.current.style.transform = `translateY(${-p * 110}%)`;
             nameRef.current.style.opacity = `${1 - p}`;
@@ -167,21 +178,35 @@ export function HeroSequence({
           if (overlayRef.current) {
             overlayRef.current.style.opacity = `${0.65 + p * 0.31}`;
           }
+          displayedProgress = p;
+        };
+        const animate = () => {
+          const diff = targetProgress - displayedProgress;
+          if (Math.abs(diff) < SETTLE_EPSILON) {
+            render(targetProgress);
+            rafId = 0;
+            return;
+          }
+          render(displayedProgress + diff * LERP_FACTOR);
+          rafId = requestAnimationFrame(animate);
         };
         scrollHandler = () => {
-          pendingProgress = computeProgress();
-          if (!rafId) rafId = requestAnimationFrame(tick);
+          targetProgress = computeProgress();
+          if (!rafId) rafId = requestAnimationFrame(animate);
         };
         // DEBUG hook
         (window as unknown as { __hs: unknown }).__hs = {
-          progress: () => pendingProgress,
+          target: () => targetProgress,
+          displayed: () => displayedProgress,
           frame: () => currentIndex,
           framesLoaded: imgs.length,
-          force: (p: number) => { pendingProgress = p; tick(); },
+          force: (p: number) => { targetProgress = p; displayedProgress = p; render(p); },
           sectionRect: () => section.getBoundingClientRect(),
         };
-        // Initial draw — handles direct-link landing partway down
-        scrollHandler();
+        // Initial: snap to current scroll without lerp
+        targetProgress = computeProgress();
+        displayedProgress = targetProgress;
+        render(targetProgress);
         window.addEventListener("scroll", scrollHandler, { passive: true });
       })
       .catch((e) => {

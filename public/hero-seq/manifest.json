@@ -1,8 +1,8 @@
 {
-  "frameCount": 243,
+  "frameCount": 304,
   "width": 720,
   "height": 720,
-  "fps": 24,
+  "fps": 30,
   "filenamePattern": "frame-{n:03d}.jpg",
-  "totalBytes": 9465578
+  "totalBytes": 10656396
 }

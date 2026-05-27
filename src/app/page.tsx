@@ -47,7 +47,13 @@ export default function Home() {
     <>
       <Nav />
       <main>
-        <section id="hero">
+        {/*
+          Hero is full-bleed: cancel the body's pt-[58px]/pt-[64px] (kept on
+          body so other sections aren't hidden under the fixed Nav) with a
+          negative margin. Result: hero edge sits at viewport top from the
+          first pixel of scroll, no "dead zone" before scrub starts.
+        */}
+        <section id="hero" className="-mt-[58px] md:-mt-[64px]">
           {heroManifest ? (
             <HeroSequence manifest={heroManifest} bandName={artist.name} />
           ) : (
