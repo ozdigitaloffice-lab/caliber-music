@@ -73,6 +73,23 @@ export function SiteLoader({
             }}
           />
 
+          {/* Ambient color glow behind the content — warm gradient blob that
+              softly pulses, matching the equalizer palette. Gives the whole
+              screen depth and color without distracting from the wave. */}
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[60vmin] w-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255, 43, 110, 0.18) 0%, rgba(255, 106, 0, 0.12) 40%, rgba(223, 225, 4, 0.08) 70%, transparent 100%)",
+            }}
+            animate={{
+              scale: [1, 1.08, 1],
+              opacity: [0.7, 1, 0.7],
+            }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+
           <div className="relative flex flex-col items-center gap-6 md:gap-8">
             {/* Band name with subtle pulse */}
             <motion.h1
@@ -110,13 +127,13 @@ export function SiteLoader({
               className="flex flex-col items-center gap-2"
             >
               <div
-                className="font-[var(--font-mono)] text-xs tabular-nums uppercase tracking-[0.5em] text-[var(--color-accent)]"
+                className="bg-gradient-to-r from-[#FF2B6E] via-[#FF6A00] to-[#DFE104] bg-clip-text font-[var(--font-mono)] text-xs tabular-nums uppercase tracking-[0.5em] text-transparent"
                 aria-hidden
               >
                 {percent}%
               </div>
               <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.3em] text-[var(--color-muted-fg)] md:text-xs">
-                שווה לחכות כמה שניות והאתר עולה!
+                שווה להמתין ! רק כמה שניות והאתר עולה
               </p>
             </motion.div>
 
@@ -194,26 +211,37 @@ function Equalizer({ progress }: { progress: number }) {
       aria-hidden
     >
       {Array.from({ length: BARS }).map((_, i) => {
-        // In RTL flow the leftmost child is visually rightmost; progress
-        // fills from the right edge (where the user's eye starts in Hebrew).
-        // We reverse the active calc accordingly.
         const active = i < progress * BARS;
+
+        // Per-bar hue: shift across the spectrum based on horizontal
+        // position — creates a sweep from yellow → orange → pink across
+        // the equalizer instead of a flat single color. Hip-hop palette:
+        // warm dominant, no greens/blues.
+        //   bar 0  (leftmost) → hue 50°  (acid yellow)
+        //   bar 24 (middle)   → hue 25°  (hot orange)
+        //   bar 47 (rightmost)→ hue 350° (magenta)
+        const hue = 50 - (i / (BARS - 1)) * 60; // 50° → -10° (wraps to 350°)
+        const normalizedHue = ((hue % 360) + 360) % 360;
+        const barColor = `hsl(${normalizedHue}, 95%, 56%)`;
+        const glowColor = `hsla(${normalizedHue}, 95%, 56%, 0.5)`;
+
         return (
           <div
             key={i}
             ref={(el) => {
               barsRef.current[i] = el;
             }}
-            className="flex-1 origin-center rounded-[1px] transition-[background-color,box-shadow] duration-300"
+            className="flex-1 origin-center rounded-[1px] transition-[background,box-shadow] duration-300"
             style={{
               height: "100%",
+              // Active bars get a vertical gradient (bar color at bottom,
+              // intensifying to white-hot at the top) so taller motion reads
+              // as "louder/hotter" like a real audio level meter.
               background: active
-                ? "var(--color-accent)"
+                ? `linear-gradient(to top, ${barColor} 0%, ${barColor} 40%, hsl(${normalizedHue}, 100%, 70%) 100%)`
                 : "var(--color-border-strong)",
               transform: "scaleY(0.12)",
-              boxShadow: active
-                ? "0 0 10px rgba(223, 225, 4, 0.35)"
-                : "none",
+              boxShadow: active ? `0 0 12px ${glowColor}` : "none",
             }}
           />
         );
