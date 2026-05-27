@@ -78,12 +78,17 @@ export function SiteLoader({
               screen depth and color without distracting from the wave. */}
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[60vmin] w-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
+            // Lighter blur (60px instead of 80px) to keep this cheap on
+            // mobile GPUs — the loader renders in parallel with the heavy
+            // frame downloads and we don't want it competing for resources.
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[55vmin] w-[55vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[60px]"
             style={{
-              // Matches the equalizer's yellow→green sweep so the ambient
-              // glow stays in the same palette as the bars.
+              // Yellow → orange → green ambient blob matching the equalizer.
               background:
-                "radial-gradient(circle, rgba(120, 220, 80, 0.16) 0%, rgba(180, 230, 40, 0.12) 40%, rgba(223, 225, 4, 0.08) 70%, transparent 100%)",
+                "radial-gradient(circle, rgba(245, 138, 20, 0.16) 0%, rgba(223, 225, 4, 0.12) 45%, rgba(20, 217, 64, 0.08) 75%, transparent 100%)",
+              // Pin to the GPU's compositor layer — prevents repaints from
+              // bleeding into the rest of the loader content.
+              willChange: "transform, opacity",
             }}
             animate={{
               scale: [1, 1.08, 1],
@@ -170,13 +175,43 @@ export function SiteLoader({
   );
 }
 
+/** Three palette stops the equalizer interpolates between, in order. */
+const STOPS = [
+  { r: 252, g: 215, b: 21 },  // 0%  — acid yellow
+  { r: 245, g: 138, b: 20 },  // 50% — hot orange
+  { r: 20,  g: 217, b: 64 },  // 100% — vivid green
+] as const;
+
+/**
+ * Returns the color at position `t` (0..1) along the yellow→orange→green
+ * sweep. Optional `brighten` (0..1) lightens the result toward white —
+ * used for the top of each bar's vertical gradient so taller bars feel
+ * "hotter" without losing the underlying hue.
+ */
+function paletteAt(t: number, brighten = 0) {
+  const ct = Math.max(0, Math.min(1, t));
+  // Which segment of the gradient are we in?
+  const idx = ct < 0.5 ? 0 : 1;
+  const local = ct < 0.5 ? ct * 2 : (ct - 0.5) * 2;
+  const a = STOPS[idx];
+  const b = STOPS[idx + 1];
+  const r = Math.round(a.r + (b.r - a.r) * local);
+  const g = Math.round(a.g + (b.g - a.g) * local);
+  const bl = Math.round(a.b + (b.b - a.b) * local);
+  if (brighten === 0) return { r, g, b: bl };
+  // Lerp toward white (255, 255, 255)
+  return {
+    r: Math.round(r + (255 - r) * brighten),
+    g: Math.round(g + (255 - g) * brighten),
+    b: Math.round(bl + (255 - bl) * brighten),
+  };
+}
+
 /**
  * 48-bar live equalizer. Each bar's height is driven by three overlapping
- * sine waves at slightly different frequencies — gives an organic
- * "music breathing" look rather than mechanical regularity. The bars to
- * the left of the progress threshold are bright acid-yellow with a glow;
- * the rest are dim gray. As loading progresses, the bright "playing"
- * portion grows across the bar field.
+ * sine waves at different frequencies — gives an organic "music breathing"
+ * look. Each bar's color is interpolated across a yellow→orange→green
+ * palette (computed once at mount, no runtime cost).
  *
  * Pure rAF; no React re-render per frame.
  */
@@ -215,16 +250,20 @@ function Equalizer({ progress }: { progress: number }) {
       {Array.from({ length: BARS }).map((_, i) => {
         const active = i < progress * BARS;
 
-        // Per-bar hue: sweep from acid yellow across to vivid green —
-        // matches the site's accent palette and reads as "music in the
-        // safe/calm range" (the yellow→green meter direction of a real
-        // audio level indicator, where green = good signal).
-        //   bar 0  (leftmost)  → hue 60°  (acid yellow)
-        //   bar 24 (middle)    → hue 90°  (yellow-lime)
-        //   bar 47 (rightmost) → hue 130° (vivid green)
-        const hue = 60 + (i / (BARS - 1)) * 70;
-        const barColor = `hsl(${hue}, 95%, 55%)`;
-        const glowColor = `hsla(${hue}, 95%, 55%, 0.5)`;
+        // 3-stop palette sweep: yellow → orange → green.
+        // Hue-space interpolation would pass through ugly intermediate
+        // colors (orange→green via HSL passes through olive/lime). RGB
+        // lerp between three explicit stops stays clean for the few bars
+        // that fall in the transition zone.
+        //
+        // All computed once per bar at mount — zero runtime cost during
+        // the rAF loop that animates bar heights.
+        const t = i / (BARS - 1);
+        const c = paletteAt(t);
+        const top = paletteAt(t, 0.18); // slightly brighter top → hot-meter look
+        const barRgb = `rgb(${c.r}, ${c.g}, ${c.b})`;
+        const topRgb = `rgb(${top.r}, ${top.g}, ${top.b})`;
+        const glowRgba = `rgba(${c.r}, ${c.g}, ${c.b}, 0.5)`;
 
         return (
           <div
@@ -235,14 +274,11 @@ function Equalizer({ progress }: { progress: number }) {
             className="flex-1 origin-center rounded-[1px] transition-[background,box-shadow] duration-300"
             style={{
               height: "100%",
-              // Active bars get a vertical gradient (bar color at bottom,
-              // intensifying to white-hot at the top) so taller motion reads
-              // as "louder/hotter" like a real audio level meter.
               background: active
-                ? `linear-gradient(to top, ${barColor} 0%, ${barColor} 40%, hsl(${hue}, 100%, 72%) 100%)`
+                ? `linear-gradient(to top, ${barRgb} 0%, ${barRgb} 40%, ${topRgb} 100%)`
                 : "var(--color-border-strong)",
               transform: "scaleY(0.12)",
-              boxShadow: active ? `0 0 12px ${glowColor}` : "none",
+              boxShadow: active ? `0 0 12px ${glowRgba}` : "none",
             }}
           />
         );
