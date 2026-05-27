@@ -82,7 +82,7 @@ export function HeroSequence({
         framesRef.current = imgs;
         setReady(true);
 
-        // ────── Step 2: wire up canvas + ScrollTrigger ──────
+        // ────── Step 2: wire up canvas + scroll handler ──────
         const canvas = canvasRef.current;
         const section = sectionRef.current;
         if (!canvas || !section) return;
@@ -103,7 +103,7 @@ export function HeroSequence({
         // top third of the square frame. Pure center-crop hides the heads on
         // landscape (desktop) viewports. Biasing dy toward 0.35 keeps faces
         // visible while still showing the walker in the lower part.
-        const POSITION_Y_BIAS = 0.35;   // 0 = show full top, 0.5 = center, 1 = show full bottom
+        const POSITION_Y_BIAS = 0.35;
         const drawFrame = (frame: HTMLImageElement) => {
           const w = canvas.clientWidth;
           const h = canvas.clientHeight;
@@ -111,18 +111,14 @@ export function HeroSequence({
           const cA = w / h;
           let dw, dh, dx, dy;
           if (fA > cA) {
-            // source wider than canvas → height-fit; image overflows horizontally
             dh = h;
             dw = h * fA;
             dx = (w - dw) / 2;
             dy = 0;
           } else {
-            // source taller (or square) → width-fit; image overflows vertically
             dw = w;
             dh = w / fA;
             dx = 0;
-            // dy ranges from 0 (top of image flush with top of canvas) to
-            // (h - dh) which is negative (bottom of image flush with bottom).
             dy = (h - dh) * POSITION_Y_BIAS;
           }
           ctx.clearRect(0, 0, w, h);
