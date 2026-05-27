@@ -48,12 +48,17 @@ ROOT = Path("C:/caliber-family")
 SOURCE = ROOT / "_data" / "hero-source.mp4"
 OUT_DIR = ROOT / "public" / "hero-seq"
 
-# Target spec — tuned for ~3-4MB total payload at a smooth scrub experience.
-FPS = 30
-WIDTH = 1280
+# Target spec — tuned for ~5-6MB total payload at a smooth scrub experience.
+# Square output (1080×1080) so the source video's framing is preserved regardless
+# of how the source was shot (landscape, portrait, or square). The Canvas
+# component then cover-fits the square to whatever viewport ratio is on screen,
+# cropping equal margins from sides (desktop) or top+bottom (mobile portrait).
+# Action centered in the square frame = visible everywhere.
+FPS = 24             # cinematic feel; smooth-enough scrub at GSAP's default lerp
+WIDTH = 720
 HEIGHT = 720
-JPG_QUALITY = 4  # ffmpeg -q:v scale: 2 = best, 31 = worst. 4 ≈ q85 in jpegtran terms.
-MAX_FRAMES = 360  # 12 seconds of source @ 30fps. Source longer than this gets trimmed.
+JPG_QUALITY = 7      # ffmpeg -q:v: 2=best, 31=worst. 7 ≈ q75; sweet spot for action shots.
+MAX_FRAMES = 288     # 12 seconds @ 24fps. Source longer than this gets trimmed.
 
 
 def main() -> None:
@@ -75,6 +80,11 @@ def main() -> None:
     #   3. crop=...         — exact 1280x720
     #   4. eq=brightness... — mild tone grading (subtle, not aggressive)
     #   5. noise=...        — film grain matching our SVG overlay
+    # Note: order matters in the filter chain.
+    #   1. fps=30                    — resample input regardless of source rate
+    #   2. scale ... increase + crop — cover-fit then crop center → exact target
+    #   3. eq=brightness=...         — mild tone grading (subtle, not aggressive)
+    #   4. noise=...                 — film grain matching our SVG overlay
     vf = ",".join([
         f"fps={FPS}",
         f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase",

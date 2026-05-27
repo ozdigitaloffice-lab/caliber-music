@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Hero video source file — 30+ MB; regenerated frames live in public/hero-seq/
+# (which IS committed so Vercel can serve them at build time). Keep the source
+# outside git and back it up to cloud storage instead.
+_data/hero-source.mp4
+_data/hero-source.mov
