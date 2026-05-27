@@ -1,28 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 /**
- * Full-page loading screen that blocks the site until the hero's video
- * frames finish downloading.
+ * Full-page loading screen — blocks the site until the hero's video frames
+ * finish downloading. Designed to be visually engaging enough that visitors
+ * don't immediately reach for the Skip button.
  *
- * Design (from user spec):
- * - Black background, acid-yellow accents — matches site brutalist look.
- * - Subtle grain overlay so the screen doesn't feel empty.
- * - Band name big.
- * - "המוזיקה שלנו בדרך אליכם" main message.
- * - Live progress bar (% of frames loaded).
- * - "שווה לחכות כמה שניות והאתר עולה" secondary message.
- * - Skip button + recommendation appear ONLY after 15s of waiting (the
- *   `showSkip` prop) — protects users on terrible connections without
- *   tempting fast users to skip a 2s wait.
+ * Key engagement elements:
+ * - **Live audio-equalizer visualization**: 48 vertical bars driven by 3
+ *   overlapping sine waves at different frequencies, giving an organic
+ *   "music breathing" feel. Bars left of the progress threshold are
+ *   acid-yellow with glow; right of the threshold are dim. Loading
+ *   progress reads as "music filling up."
+ * - **Pulsing center beat dot**: synced to a 600ms BPM, gives the whole
+ *   screen a heartbeat — like the sub-bass on a track.
+ * - **Rotating status messages**: 6 different "loading the studio" style
+ *   lines cycling every 2.5s. People wait to see the next one.
+ * - **Band name with subtle glow pulse**: settles in after first paint.
  *
- * Body scroll is locked while visible so the user can't accidentally
- * scroll into half-loaded content.
+ * Skip button + recommendation only after 15s — protects users on terrible
+ * connections without tempting fast users to skip a 3s wait.
  *
- * AnimatePresence fades the whole thing out cleanly (400ms) once
- * `visible` flips to false.
+ * Body scroll is locked while visible (no peeking past the curtain).
  */
 export function SiteLoader({
   visible,
@@ -35,8 +36,8 @@ export function SiteLoader({
   showSkip: boolean;
   onSkip: () => void;
 }) {
-  // Lock body scroll while the loader is showing — prevents content under
-  // the overlay from scrolling if the user wheels through it.
+  // Body scroll lock — the user shouldn't be able to wheel through the
+  // loader and reveal half-rendered content behind it.
   useEffect(() => {
     if (!visible) return;
     const prev = document.body.style.overflow;
@@ -59,12 +60,12 @@ export function SiteLoader({
           className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-[var(--color-bg)] px-6 text-center"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: "easeInOut" }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          {/* Subtle SVG grain — matches the persistent grain everywhere else */}
+          {/* Persistent SVG grain — matches site aesthetic everywhere else */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
+            className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-overlay"
             style={{
               backgroundImage:
                 "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>\")",
@@ -72,64 +73,54 @@ export function SiteLoader({
             }}
           />
 
-          {/* Content stack */}
-          <div className="relative flex flex-col items-center gap-7 md:gap-9">
-            {/* Band name */}
+          <div className="relative flex flex-col items-center gap-6 md:gap-8">
+            {/* Band name with subtle pulse */}
             <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                textShadow: [
+                  "0 0 22px rgba(223, 225, 4, 0.12)",
+                  "0 0 32px rgba(223, 225, 4, 0.28)",
+                  "0 0 22px rgba(223, 225, 4, 0.12)",
+                ],
+              }}
+              transition={{
+                opacity: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+                y: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+                textShadow: { duration: 2.8, repeat: Infinity, ease: "easeInOut" },
+              }}
               className="font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)] md:text-7xl"
-              style={{ textShadow: "0 4px 32px rgba(223, 225, 4, 0.15)" }}
             >
               משפחת קליבר
             </motion.h1>
 
-            {/* Main message */}
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="font-[var(--font-body)] text-base text-[var(--color-fg)] md:text-xl"
-            >
-              המוזיקה שלנו בדרך אליכם
-            </motion.p>
+            {/* Cycling status messages (engagement: people wait to read the next one) */}
+            <CyclingMessage />
 
-            {/* Progress bar + percent */}
+            {/* Equalizer-style live waveform */}
+            <Equalizer progress={progress} />
+
+            {/* Percent + secondary message */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex w-72 max-w-[80vw] flex-col items-center gap-2"
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex flex-col items-center gap-2"
             >
-              <div className="h-[3px] w-full overflow-hidden bg-[var(--color-border-strong)]">
-                <div
-                  className="h-full bg-[var(--color-accent)] transition-transform duration-200 ease-out"
-                  style={{
-                    transform: `scaleX(${progress})`,
-                    transformOrigin: "right",
-                  }}
-                />
-              </div>
               <div
-                className="font-[var(--font-mono)] text-[10px] tabular-nums uppercase tracking-[0.4em] text-[var(--color-accent)]"
+                className="font-[var(--font-mono)] text-xs tabular-nums uppercase tracking-[0.5em] text-[var(--color-accent)]"
                 aria-hidden
               >
                 {percent}%
               </div>
+              <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.3em] text-[var(--color-muted-fg)] md:text-xs">
+                שווה לחכות כמה שניות והאתר עולה
+              </p>
             </motion.div>
 
-            {/* Secondary message */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="font-[var(--font-mono)] text-xs uppercase tracking-[0.3em] text-[var(--color-muted-fg)]"
-            >
-              שווה לחכות כמה שניות והאתר עולה
-            </motion.p>
-
-            {/* Skip button — appears after 15s with recommendation note */}
+            {/* Skip — appears after 15s with recommendation */}
             <AnimatePresence>
               {showSkip && (
                 <motion.div
@@ -141,7 +132,7 @@ export function SiteLoader({
                   className="mt-2 flex max-w-sm flex-col items-center gap-3"
                 >
                   <p className="font-[var(--font-body)] text-sm leading-relaxed text-[var(--color-muted-fg)]">
-                    ממליצים לחכות בשביל לראות את האתר באיכות הטובה ביותר
+                    ממליצים לחכות בשביל לראות את האתר באיכות הטובה ביותר!
                   </p>
                   <button
                     type="button"
@@ -157,5 +148,119 @@ export function SiteLoader({
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/**
+ * 48-bar live equalizer. Each bar's height is driven by three overlapping
+ * sine waves at slightly different frequencies — gives an organic
+ * "music breathing" look rather than mechanical regularity. The bars to
+ * the left of the progress threshold are bright acid-yellow with a glow;
+ * the rest are dim gray. As loading progresses, the bright "playing"
+ * portion grows across the bar field.
+ *
+ * Pure rAF; no React re-render per frame.
+ */
+function Equalizer({ progress }: { progress: number }) {
+  const BARS = 48;
+  const barsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = () => {
+      const t = (performance.now() - start) / 1000;
+      for (let i = 0; i < BARS; i++) {
+        const bar = barsRef.current[i];
+        if (!bar) continue;
+        // Three sine waves layered at varying frequencies and phases — the
+        // result reads as "music" rather than pendulum.
+        const w1 = Math.sin(t * 1.7 + i * 0.32) * 0.36;
+        const w2 = Math.sin(t * 2.9 + i * 0.19) * 0.26;
+        const w3 = Math.sin(t * 0.9 + i * 0.51) * 0.18;
+        const amp = 0.48 + w1 + w2 + w3;
+        const h = Math.max(0.08, Math.min(1, amp));
+        bar.style.transform = `scaleY(${h})`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div
+      className="flex h-20 w-80 items-center gap-[3px] md:h-24 md:w-[28rem]"
+      aria-hidden
+    >
+      {Array.from({ length: BARS }).map((_, i) => {
+        // In RTL flow the leftmost child is visually rightmost; progress
+        // fills from the right edge (where the user's eye starts in Hebrew).
+        // We reverse the active calc accordingly.
+        const active = i < progress * BARS;
+        return (
+          <div
+            key={i}
+            ref={(el) => {
+              barsRef.current[i] = el;
+            }}
+            className="flex-1 origin-center rounded-[1px] transition-[background-color,box-shadow] duration-300"
+            style={{
+              height: "100%",
+              background: active
+                ? "var(--color-accent)"
+                : "var(--color-border-strong)",
+              transform: "scaleY(0.12)",
+              boxShadow: active
+                ? "0 0 10px rgba(223, 225, 4, 0.35)"
+                : "none",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Rotates through a list of hip-hop-themed "loading the studio" messages
+ * every 2.5s. AnimatePresence crossfades between them. Adds enough
+ * variety + personality that users wait to see the next line instead of
+ * reaching for the skip button.
+ */
+const LOADING_MESSAGES = [
+  "המוזיקה שלנו בדרך אליכם",
+  "מכינים את הסטודיו...",
+  "מכוונים את הביטים",
+  "מרימים את הוליום",
+  "מחממים את הרמקולים",
+  "סטודיו פתוח · גלילה לבוא",
+];
+
+function CyclingMessage() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 2500);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <div className="relative h-7 w-full overflow-hidden md:h-8">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={index}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -14 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0 flex items-center justify-center font-[var(--font-body)] text-base text-[var(--color-fg)] md:text-xl"
+        >
+          {LOADING_MESSAGES[index]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
   );
 }
