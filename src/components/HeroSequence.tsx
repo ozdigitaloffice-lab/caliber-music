@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SiteLoader } from "./SiteLoader";
 
 type Manifest = {
   frameCount: number;
@@ -40,6 +41,14 @@ export function HeroSequence({
   const framesRef = useRef<HTMLImageElement[]>([]);
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
+  // Loader visibility:
+  // - Starts true (covers the page from initial SSR markup so there's no flash
+  //   of the un-hydrated site).
+  // - Hides automatically when ALL frames finish loading.
+  // - Hides immediately if user clicks the Skip button (visible after 15s).
+  // After hide → nearest-loaded fallback handles any frames that weren't ready.
+  const [loaderVisible, setLoaderVisible] = useState(true);
+  const [skipVisible, setSkipVisible] = useState(false);
 
   const frameUrls = Array.from({ length: manifest.frameCount }, (_, i) =>
     `/hero-seq/${manifest.filenamePattern.replace("{n:03d}", String(i + 1).padStart(3, "0"))}`,
@@ -97,6 +106,13 @@ export function HeroSequence({
         if (cancelled) return;
         setReady(true);
 
+        // Schedule the Skip-button reveal at 15s — only if frames haven't
+        // already finished by then (the recommendation is "wait", but for
+        // users on terrible connections we don't want to hold them hostage).
+        const skipTimer = window.setTimeout(() => {
+          if (loaded < totalToLoad) setSkipVisible(true);
+        }, 15_000);
+
         // ────── Wire up canvas + scroll handler the moment frame 1 lands ──────
         const canvas = canvasRef.current;
         const section = sectionRef.current;
@@ -144,12 +160,18 @@ export function HeroSequence({
         let currentIndex = 0;
         drawFrame(firstFrame);
 
-        // Background-load the rest at low priority. We don't await this —
-        // the page is already interactive. As frames arrive, scroll handler
-        // can pick them up.
+        // Background-load the rest at low priority. As frames arrive, the
+        // scroll handler picks them up via nearest-loaded fallback. When the
+        // final one lands we automatically dismiss the loader.
+        const restPromises: Promise<HTMLImageElement>[] = [];
         for (let i = 1; i < totalToLoad; i++) {
-          loadOne(i, "low").catch(() => {});
+          restPromises.push(loadOne(i, "low").catch(() => firstFrame));
         }
+        Promise.all(restPromises).then(() => {
+          if (cancelled) return;
+          window.clearTimeout(skipTimer);
+          setLoaderVisible(false);
+        });
 
         // Nearest-loaded fallback: when the scroll handler wants frame N
         // but it hasn't arrived yet, find the closest one that has.
@@ -278,24 +300,24 @@ export function HeroSequence({
         />
 
         {/*
-          Tiny progress bar shown ONLY while background loading is in
-          progress (frame-1 already painted the canvas, so we don't need
-          a full-screen loading overlay anymore). Pinned bottom-right,
-          quietly fades away when 100% loaded.
+          Full-page loading overlay — covers the entire site (including Nav,
+          sections below) via fixed inset-0 + high z-index. Fades out the
+          moment all frames are loaded, or when the user clicks Skip after
+          the 15-second mark.
+
+          Rendered inside HeroSequence (rather than at the layout level) so
+          it only exists for users actually doing the heavy hero load —
+          fallback Hero users never see it.
+
+          AnimatePresence handles the fade-out animation; framer-motion
+          inside <SiteLoader/> handles body scroll-lock + content.
         */}
-        {ready && progress < 1 && (
-          <div className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-2 opacity-60">
-            <div className="h-[2px] w-20 overflow-hidden bg-[var(--color-border-strong)]/60">
-              <div
-                className="h-full bg-[var(--color-accent)] transition-transform duration-150"
-                style={{ transform: `scaleX(${progress})`, transformOrigin: "right" }}
-              />
-            </div>
-            <span className="font-[var(--font-mono)] text-[9px] tabular-nums uppercase tracking-[0.2em] text-[var(--color-muted-fg)]">
-              {Math.round(progress * 100)}%
-            </span>
-          </div>
-        )}
+        <SiteLoader
+          visible={loaderVisible}
+          progress={progress}
+          showSkip={skipVisible}
+          onSkip={() => setLoaderVisible(false)}
+        />
 
         {/* Scroll cue only — band name removed so the video's own typography reads cleanly */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--color-muted-fg)]">
