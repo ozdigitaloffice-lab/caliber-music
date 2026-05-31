@@ -239,14 +239,16 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
         height by the same amount keeps the canvas exactly in the visible
         viewport — no overflow under the Nav, no overflow off the bottom.
       */}
-      <div className="sticky top-[58px] md:top-[64px] h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
-        {/*
-          Same mobile inset treatment as HeroSequence — the canvas sits
-          inside a small dark frame on phones, full-bleed on desktop.
-        */}
+      {/*
+        Same mobile-only height shrink as HeroSequence: 88vh on phones
+        (minus the 58px Nav offset), full-bleed on desktop. The shorter
+        canvas means cover-fit crops less of the source horizontally,
+        so the viewer sees more of the actual frame content.
+      */}
+      <div className="sticky top-[58px] md:top-[64px] h-[calc(88vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
-          className="absolute inset-x-[4vw] top-[4vh] bottom-[4vh] md:inset-0 md:left-0 md:right-0 md:top-0 md:bottom-0"
+          className="absolute inset-0 h-full w-full"
           aria-hidden
         />
         {!hasPlaceholder && (

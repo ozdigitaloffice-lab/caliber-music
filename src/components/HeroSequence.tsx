@@ -287,17 +287,19 @@ export function HeroSequence({
       className="relative h-[300vh] w-full"
       aria-label="פתיח"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
-        {/*
-          On mobile the canvas is inset slightly (4vw horizontal, 4vh
-          vertical) so the video sits inside a small dark "frame" instead
-          of bleeding edge to edge — feels less overwhelming on a small
-          screen. Desktop stays full-bleed. Iteration tunable: bump the
-          numbers to make the frame thicker / video smaller.
-        */}
+      {/*
+        Sticky child height on mobile is 88vh (was 100vh full-screen).
+        Reason: the source video is square (1:1) — on a tall portrait
+        phone viewport, cover-fit crops the SIDES of the image heavily
+        to fit the height. A slightly shorter sticky container makes
+        the canvas closer to square, so cover-fit crops less and the
+        viewer sees more of the source horizontally.
+        Desktop stays full-bleed.
+      */}
+      <div className="sticky top-0 h-[88vh] md:h-screen w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
-          className="absolute inset-x-[4vw] top-[4vh] bottom-[4vh] md:inset-0 md:left-0 md:right-0 md:top-0 md:bottom-0"
+          className="absolute inset-0 h-full w-full"
           aria-hidden
         />
 
