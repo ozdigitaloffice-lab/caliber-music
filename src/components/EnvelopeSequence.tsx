@@ -11,28 +11,25 @@ type Manifest = {
 };
 
 /**
- * Scroll-driven envelope animation. Sits between the song grid and the
- * "מי אנחנו" section as a visual transition.
+ * Scroll-driven envelope animation between the song grid and "מי אנחנו".
  *
- * Loading strategy — optimized for "load as fast as possible without
- * sacrificing quality" while staying invisible to users not scrolling:
+ * Loading strategy:
+ * 1. **Frame 1 loads first** at high fetchpriority and is drawn as the
+ *    static placeholder. The user always sees the envelope at its
+ *    starting state, even if they jump to this section before the rest
+ *    has downloaded.
+ * 2. **All other frames are loaded** — but deferred via
+ *    requestIdleCallback (with setTimeout fallback). This means the
+ *    page's critical resources (hero frames, album art, fonts, JS)
+ *    finish first, *then* the envelope frames stream in in the
+ *    background. Every frame uses fetchpriority="low" so the browser
+ *    pushes them behind everything else regardless of when requested.
+ * 3. **Nearest-loaded fallback**: if scroll asks for a frame that
+ *    hasn't downloaded yet, the renderer walks outward to find the
+ *    nearest one that has. Scrub gets smoother as more frames arrive.
  *
- * 1. **Last frame loads immediately at high priority**. Drawn to the canvas
- *    as a static placeholder so the section always shows something (the
- *    end state of the animation — "the envelope is open").
- * 2. **All other frames load lazily** via IntersectionObserver. The
- *    download is kicked off only when the section is within 1.5 viewports
- *    of being on-screen, so visitors who never reach this section never
- *    pay the bytes.
- * 3. **Background loads run at low fetchpriority** so they don't compete
- *    with hero frames or other critical resources.
- * 4. **Nearest-loaded fallback** as in HeroSequence — if scroll asks for
- *    a frame that hasn't downloaded yet, the renderer picks the closest
- *    one that has. So scrub never "skips" — it just gets smoother as
- *    more frames land.
- *
- * No blocking UI: the section just shows its placeholder while loading,
- * and the scrub becomes interactive when frames arrive.
+ * No blocking UI; the section just shows frame-1 as a static image and
+ * upgrades to interactive scrub as frames land.
  */
 export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,9 +46,9 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
     let cancelled = false;
     let scrollHandler: (() => void) | null = null;
     let resizeHandler: (() => void) | null = null;
-    let observer: IntersectionObserver | null = null;
     let rafId = 0;
-    let backgroundStarted = false;
+    let idleHandle: number | null = null;
+    let idleTimeout: number | null = null;
 
     const section = sectionRef.current;
     const canvas = canvasRef.current;
@@ -104,19 +101,17 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
 
     setCanvasSize();
 
-    // ────── Step 1: high-priority load of the LAST frame for the placeholder ──────
-    const lastIdx = manifest.frameCount - 1;
-    const lastImg = new Image();
-    lastImg.decoding = "async";
-    (lastImg as HTMLImageElement & { fetchPriority?: string }).fetchPriority = "high";
-    lastImg.onload = () => {
+    // ────── Step 1: load FRAME 1 first for the placeholder ──────
+    const firstImg = new Image();
+    firstImg.decoding = "async";
+    (firstImg as HTMLImageElement & { fetchPriority?: string }).fetchPriority = "high";
+    firstImg.onload = () => {
       if (cancelled) return;
-      framesRef.current[lastIdx] = lastImg;
-      // Draw it immediately so the section never looks empty.
-      drawFrame(lastImg);
+      framesRef.current[0] = firstImg;
+      drawFrame(firstImg); // static placeholder — envelope at its starting state
       setHasPlaceholder(true);
     };
-    lastImg.src = buildUrl(manifest.frameCount);
+    firstImg.src = buildUrl(1);
 
     // ────── Step 2: scroll handler with lerp (always wired up) ──────
     let displayedProgress = -1;
@@ -168,17 +163,24 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
 
     resizeHandler = () => {
       setCanvasSize();
-      const f = nearestLoaded(currentIndex >= 0 ? currentIndex : lastIdx);
+      const f = nearestLoaded(currentIndex >= 0 ? currentIndex : 0);
       if (f) drawFrame(f);
     };
     window.addEventListener("resize", resizeHandler);
 
-    // ────── Step 3: lazy-load everything else once we approach the section ──────
+    // ────── Step 3: load the rest in the background, deferred until idle ──────
+    //
+    // We always load every frame (never want a user reaching this section
+    // and seeing only a static image), but we defer kicking it off until
+    // the browser reports idle time. That way the hero loader, hero
+    // frames, album art, fonts, and JS all finish first — the envelope
+    // sequence trickles in *after* everything else is settled.
+    //
+    // Each request is also marked fetchpriority="low" so the browser
+    // pushes them behind anything else still in flight, regardless of
+    // when they're requested.
     const startBackgroundLoad = () => {
-      if (backgroundStarted) return;
-      backgroundStarted = true;
-      for (let i = 1; i <= manifest.frameCount; i++) {
-        if (i === manifest.frameCount) continue; // already loaded
+      for (let i = 2; i <= manifest.frameCount; i++) {
         const img = new Image();
         img.decoding = "async";
         (img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = "low";
@@ -190,28 +192,31 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
       }
     };
 
-    observer = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            startBackgroundLoad();
-            observer?.disconnect();
-            break;
-          }
-        }
-      },
-      // Start loading when the section is 1.5 viewports below the fold —
-      // by the time the user scrolls into it, frames are usually ready.
-      { rootMargin: "150% 0% 50% 0%", threshold: 0 },
-    );
-    observer.observe(section);
+    // requestIdleCallback isn't on every browser (notably Safari); the
+    // setTimeout fallback gives the page a 2s head start to settle.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === "function") {
+      idleHandle = w.requestIdleCallback(() => {
+        if (!cancelled) startBackgroundLoad();
+      }, { timeout: 4000 });
+    } else {
+      idleTimeout = window.setTimeout(() => {
+        if (!cancelled) startBackgroundLoad();
+      }, 2000);
+    }
 
     return () => {
       cancelled = true;
       if (scrollHandler) window.removeEventListener("scroll", scrollHandler);
       if (resizeHandler) window.removeEventListener("resize", resizeHandler);
       if (rafId) cancelAnimationFrame(rafId);
-      observer?.disconnect();
+      if (idleHandle != null && typeof w.cancelIdleCallback === "function") {
+        w.cancelIdleCallback(idleHandle);
+      }
+      if (idleTimeout != null) window.clearTimeout(idleTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [manifest.frameCount]);
