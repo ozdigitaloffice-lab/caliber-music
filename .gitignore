@@ -45,3 +45,5 @@ next-env.d.ts
 # outside git and back it up to cloud storage instead.
 _data/hero-source.mp4
 _data/hero-source.mov
+_data/envelope-source.mp4
+_data/envelope-source.mov

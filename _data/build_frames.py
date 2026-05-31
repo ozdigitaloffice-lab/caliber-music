@@ -1,25 +1,29 @@
 """
-Convert a source hero video into a JPG image sequence for scroll-driven playback.
+Convert any source video into a WebP image sequence for scroll-driven playback.
 
 Usage:
-    1. Drop your filmed clip at: _data/hero-source.mp4 (any common format works)
-    2. Run: python _data/build_frames.py
-    3. Frames land in: public/hero-seq/frame-001.jpg ... frame-NNN.jpg
-       + manifest.json (with frame count + dimensions for the React side)
+    # Hero (default — backwards-compatible):
+    python _data/build_frames.py
 
-The HeroSequence component auto-discovers the manifest and falls back to the
-album-art Hero if frames aren't present.
+    # Any other clip with custom output:
+    python _data/build_frames.py \
+        --source _data/envelope-source.mp4 \
+        --out    public/envelope-seq \
+        --width 1024 --height 576 --fps 24
+
+The matching React component picks up the manifest.json in the output dir
+and falls back gracefully if frames aren't present.
 
 What this script does to your video:
-- Strips audio (we don't need it for a muted hero)
-- Resamples to 30 fps (smooth scrub without overshooting frame budget)
-- Crops to 16:9 if needed (covers the hero viewport edge-to-edge)
-- Scales to 1280x720 (HD, sharp; ~12KB/frame at q85)
-- Subtle color grading: -8% saturation, +3% brightness (matches dark-mode hero)
-- Subtle film-grain noise (1%) baked in (matches the persistent SVG grain
-  overlay everywhere else)
+- Strips audio (muted hero/envelope animation)
+- Resamples fps as specified
+- Cover-crops to target dimensions
+- Subtle color grading (-8% saturation, +3% brightness)
+- 1% film-grain noise (matches the SVG grain overlay site-wide)
+- Outputs WebP at configurable quality
 """
 from __future__ import annotations
+import argparse
 import json
 import os
 import shutil
@@ -45,76 +49,69 @@ def find_ffmpeg() -> str:
     )
 
 ROOT = Path("C:/caliber-family")
-SOURCE = ROOT / "_data" / "hero-source.mp4"
-OUT_DIR = ROOT / "public" / "hero-seq"
 
-# Target spec — tuned for ~5-6MB total payload at a smooth scrub experience.
-# Square output (1080×1080) so the source video's framing is preserved regardless
-# of how the source was shot (landscape, portrait, or square). The Canvas
-# component then cover-fits the square to whatever viewport ratio is on screen,
-# cropping equal margins from sides (desktop) or top+bottom (mobile portrait).
-# Action centered in the square frame = visible everywhere.
-FPS = 30             # match source rate → no downsample artifacts, more frames for smoother scrub
-WIDTH = 720
-HEIGHT = 720
-# WebP @ quality 75 is ~25-35% smaller than JPG at the same visual quality.
-# Universal browser support since Safari 14. Same canvas drawImage API works.
-WEBP_QUALITY = 55    # WebP q55 ≈ JPG q72 visually but ~30% smaller for photographic content
-MAX_FRAMES = 360     # 12 seconds @ 30fps. Source longer than this gets trimmed.
+# Defaults match the original hero pipeline so `python build_frames.py` with
+# no args still rebuilds the hero unchanged. Other clips override via CLI.
+DEFAULT_SOURCE = ROOT / "_data" / "hero-source.mp4"
+DEFAULT_OUT    = ROOT / "public" / "hero-seq"
+DEFAULT_FPS    = 30
+DEFAULT_WIDTH  = 720
+DEFAULT_HEIGHT = 720
+WEBP_QUALITY   = 55  # WebP q55 ≈ JPG q72 visually but ~30% smaller for photographic content
+DEFAULT_MAX    = 360 # cap frames so long clips don't bloat the payload
 
 
 def main() -> None:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--source", type=Path, default=DEFAULT_SOURCE,
+                   help="Path to the source video (default: hero-source.mp4)")
+    p.add_argument("--out",    type=Path, default=DEFAULT_OUT,
+                   help="Output directory under public/ (default: public/hero-seq)")
+    p.add_argument("--width",  type=int,  default=DEFAULT_WIDTH)
+    p.add_argument("--height", type=int,  default=DEFAULT_HEIGHT)
+    p.add_argument("--fps",    type=int,  default=DEFAULT_FPS)
+    p.add_argument("--max-frames", type=int, default=DEFAULT_MAX)
+    p.add_argument("--quality", type=int, default=WEBP_QUALITY)
+    args = p.parse_args()
+
     ffmpeg = find_ffmpeg()
-    if not SOURCE.exists():
-        print(f"ERROR: place your filmed clip at {SOURCE}", file=sys.stderr)
-        print("       (any common format works: .mp4, .mov, .webm, .mkv)", file=sys.stderr)
+    if not args.source.exists():
+        print(f"ERROR: source video not found at {args.source}", file=sys.stderr)
         sys.exit(2)
 
-    # Wipe + recreate the output dir so we don't mix old + new frames if the
-    # source got shorter.
-    if OUT_DIR.exists():
-        shutil.rmtree(OUT_DIR)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Wipe + recreate output dir so leftover frames from a longer prior build
+    # don't sneak into the manifest count.
+    if args.out.exists():
+        shutil.rmtree(args.out)
+    args.out.mkdir(parents=True, exist_ok=True)
 
-    # Build the filter graph. Order matters:
-    #   1. fps=30           — resample input to 30fps regardless of source rate
-    #   2. scale=...        — fit to 1280x720 covering (no letterbox)
-    #   3. crop=...         — exact 1280x720
-    #   4. eq=brightness... — mild tone grading (subtle, not aggressive)
-    #   5. noise=...        — film grain matching our SVG overlay
-    # Note: order matters in the filter chain.
-    #   1. fps=30                    — resample input regardless of source rate
-    #   2. scale ... increase + crop — cover-fit then crop center → exact target
-    #   3. eq=brightness=...         — mild tone grading (subtle, not aggressive)
-    #   4. noise=...                 — film grain matching our SVG overlay
     vf = ",".join([
-        f"fps={FPS}",
-        f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase",
-        f"crop={WIDTH}:{HEIGHT}",
+        f"fps={args.fps}",
+        f"scale={args.width}:{args.height}:force_original_aspect_ratio=increase",
+        f"crop={args.width}:{args.height}",
         "eq=brightness=0.03:saturation=0.92",
         "noise=alls=4:allf=t",
     ])
 
     cmd = [
         ffmpeg, "-y",
-        "-i", str(SOURCE),
+        "-i", str(args.source),
         "-vf", vf,
         "-an",                                # strip audio
-        "-frames:v", str(MAX_FRAMES),         # cap
-        "-c:v", "libwebp",                    # WebP encoder
-        "-quality", str(WEBP_QUALITY),
-        "-preset", "photo",                   # tuned for photographic content
-        "-compression_level", "6",            # 0-6: bigger = slower encode + smaller file
-        str(OUT_DIR / "frame-%03d.webp"),
+        "-frames:v", str(args.max_frames),    # cap
+        "-c:v", "libwebp",
+        "-quality", str(args.quality),
+        "-preset", "photo",
+        "-compression_level", "6",
+        str(args.out / "frame-%03d.webp"),
     ]
-    print("Running ffmpeg…")
-    print("  " + " ".join(cmd[:1] + ["..."] + cmd[-3:]))
+    print(f"Running ffmpeg on {args.source.name}…")
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         print(r.stderr, file=sys.stderr)
         sys.exit(r.returncode)
 
-    frames = sorted(OUT_DIR.glob("frame-*.webp"))
+    frames = sorted(args.out.glob("frame-*.webp"))
     if not frames:
         print("ERROR: ffmpeg ran but produced no frames", file=sys.stderr)
         sys.exit(3)
@@ -122,21 +119,20 @@ def main() -> None:
     total_size = sum(f.stat().st_size for f in frames)
     manifest = {
         "frameCount": len(frames),
-        "width": WIDTH,
-        "height": HEIGHT,
-        "fps": FPS,
-        "filenamePattern": "frame-{n:03d}.webp",  # client uses n = 1..frameCount
+        "width":  args.width,
+        "height": args.height,
+        "fps":    args.fps,
+        "filenamePattern": "frame-{n:03d}.webp",
         "totalBytes": total_size,
     }
-    (OUT_DIR / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    (args.out / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
     avg_kb = total_size // len(frames) // 1024
     total_mb = total_size / 1024 / 1024
-    print(f"\n✓ Wrote {len(frames)} frames to {OUT_DIR}")
-    print(f"  resolution: {WIDTH}x{HEIGHT}")
+    print(f"\n✓ Wrote {len(frames)} frames to {args.out}")
+    print(f"  resolution: {args.width}x{args.height}")
     print(f"  total size: {total_mb:.1f} MB ({avg_kb} KB avg/frame)")
-    print(f"  manifest:   {OUT_DIR / 'manifest.json'}")
-    print(f"\nReload the dev server — HeroSequence will pick it up automatically.")
+    print(f"  manifest:   {args.out / 'manifest.json'}")
 
 
 if __name__ == "__main__":

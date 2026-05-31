@@ -1,6 +1,7 @@
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { HeroSequence } from "@/components/HeroSequence";
+import { EnvelopeSequence } from "@/components/EnvelopeSequence";
 import { Marquee } from "@/components/Marquee";
 import { SongGrid } from "@/components/SongGrid";
 import { AboutSection } from "@/components/AboutSection";
@@ -9,6 +10,7 @@ import { AboutStrip } from "@/components/AboutStrip";
 import { Footer } from "@/components/Footer";
 import { songsData, type Song } from "@/lib/songs";
 import { loadHeroManifest } from "@/lib/heroManifest";
+import { loadEnvelopeManifest } from "@/lib/envelopeManifest";
 
 // Hero tiles (top 2 large) and songs we want de-emphasized in the marquee + grid tail.
 // Editing this here keeps the curation explicit and easy to re-order later.
@@ -42,6 +44,10 @@ export default function Home() {
   // If the user has built the hero image-sequence (public/hero-seq/manifest.json),
   // use the Apple-style scrub hero. Otherwise fall back to the static-image hero.
   const heroManifest = loadHeroManifest();
+  // Optional second scroll-scrub clip ("envelope opening") that sits between
+  // the song grid and the about section. Only rendered if the matching
+  // public/envelope-seq/manifest.json is present.
+  const envelopeManifest = loadEnvelopeManifest();
 
   return (
     <>
@@ -63,6 +69,11 @@ export default function Home() {
         <section id="music">
           <SongGrid songs={orderedForGrid} />
         </section>
+
+        {/* Scroll-driven envelope-opening clip — visual transition between
+            the music section and "מי אנחנו". Only renders if frames built. */}
+        {envelopeManifest && <EnvelopeSequence manifest={envelopeManifest} />}
+
         <AboutSection />
         <CollabContact />
         <AboutStrip totalSongs={songs.length} />
