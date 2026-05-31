@@ -284,17 +284,20 @@ export function HeroSequence({
   return (
     <section
       ref={sectionRef}
-      // Mobile gets a slightly shorter total scroll trail (270vh instead
-      // of 300vh) so the hero doesn't dominate the small-screen scroll
-      // budget. SCRUB_VH stays 150 → mobile hold shrinks to 20vh, desktop
-      // hold stays at 50vh. Tunable per user feedback.
-      className="relative h-[270vh] w-full md:h-[300vh]"
+      className="relative h-[300vh] w-full"
       aria-label="פתיח"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
+        {/*
+          On mobile the canvas is inset slightly (4vw horizontal, 4vh
+          vertical) so the video sits inside a small dark "frame" instead
+          of bleeding edge to edge — feels less overwhelming on a small
+          screen. Desktop stays full-bleed. Iteration tunable: bump the
+          numbers to make the frame thicker / video smaller.
+        */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-x-[4vw] top-[4vh] bottom-[4vh] md:inset-0 md:left-0 md:right-0 md:top-0 md:bottom-0"
           aria-hidden
         />
 

@@ -228,9 +228,7 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
   return (
     <section
       ref={sectionRef}
-      // Mobile total scroll: 240vh instead of 270vh. SCRUB_VH stays 100 →
-      // mobile hold shrinks to 40vh, desktop hold stays at 70vh.
-      className="relative h-[240vh] w-full md:h-[270vh]"
+      className="relative h-[270vh] w-full"
       aria-label="קליפ מעבר"
     >
       {/*
@@ -242,9 +240,13 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
         viewport — no overflow under the Nav, no overflow off the bottom.
       */}
       <div className="sticky top-[58px] md:top-[64px] h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
+        {/*
+          Same mobile inset treatment as HeroSequence — the canvas sits
+          inside a small dark frame on phones, full-bleed on desktop.
+        */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-x-[4vw] top-[4vh] bottom-[4vh] md:inset-0 md:left-0 md:right-0 md:top-0 md:bottom-0"
           aria-hidden
         />
         {!hasPlaceholder && (
