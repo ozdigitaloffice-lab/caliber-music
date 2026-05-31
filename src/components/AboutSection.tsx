@@ -35,7 +35,7 @@ export function AboutSection() {
             מי אנחנו
           </RevealHeading>
 
-          <p className="mt-8 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:text-xl">
+          <p className="mt-4 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:mt-6 md:text-xl">
             {BIO}
           </p>
 

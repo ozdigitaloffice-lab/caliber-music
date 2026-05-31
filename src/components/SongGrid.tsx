@@ -24,7 +24,7 @@ export function SongGrid({ songs }: { songs: Song[] }) {
       aria-labelledby="disc-title"
     >
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
-        <header className="mb-10 flex flex-col items-start gap-2 md:mb-14 md:flex-row md:items-end md:justify-between">
+        <header className="mb-10 flex flex-col items-start gap-0 md:mb-14 md:flex-row md:items-end md:justify-between md:gap-2">
           <div>
             <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
               DISCOGRAPHY · {songs.length} SINGLES
