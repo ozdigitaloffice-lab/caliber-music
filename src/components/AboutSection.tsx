@@ -25,7 +25,7 @@ export function AboutSection() {
         {/* Text column */}
         <div>
           <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
-            אודות · ABOUT
+            מי אנחנו · ABOUT
           </p>
           <RevealHeading
             as="h2"
