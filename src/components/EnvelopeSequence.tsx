@@ -118,10 +118,10 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
     let targetProgress = 0;
     let currentIndex = -1;
     // The scrub finishes in the first 100vh of pinned scroll. Because the
-    // outer section is h-[250vh] (= 150vh sticky-pinned), the last 50vh of
-    // pinned scroll holds the final frame in view before the next section
-    // takes over — so the user doesn't drop straight into "מי אנחנו" the
-    // instant the envelope opens.
+    // outer section is h-[350vh] (= 250vh sticky-pinned), the last 150vh
+    // of pinned scroll holds the final frame in view before the next
+    // section takes over — about 1.5 viewports of "look at the open
+    // envelope" so the moment lands before the page moves on.
     const SCRUB_VH = 100;
     const LERP = 0.14;
     const EPS = 0.0008;
@@ -229,7 +229,7 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[250vh] w-full"
+      className="relative h-[350vh] w-full"
       aria-label="קליפ מעבר"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
