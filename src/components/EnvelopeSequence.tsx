@@ -31,7 +31,14 @@ type Manifest = {
  * No blocking UI; the section just shows frame-1 as a static image and
  * upgrades to interactive scrub as frames land.
  */
-export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
+export function EnvelopeSequence({
+  manifest,
+  mobileTeaser,
+}: {
+  manifest: Manifest;
+  // Locked alongside the canvas on mobile (bottom 35% of sticky area).
+  mobileTeaser?: React.ReactNode;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const framesRef = useRef<(HTMLImageElement | undefined)[]>(
@@ -240,17 +247,27 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
         viewport — no overflow under the Nav, no overflow off the bottom.
       */}
       {/*
-        Same mobile shrink as HeroSequence: 70vh on phones, full-bleed
-        on desktop. The bottom of viewport during sticky shows the next
-        section (About) peeking up — see the negative margin on the
-        AboutSection wrapper in page.tsx.
+        Sticky child is full viewport (minus Nav) on every breakpoint.
+        On mobile the canvas occupies the top 65% and the teaser strip
+        the bottom 35% — both locked in place for the entire scrub, so
+        the teaser ("מי אנחנו" headline) is visible from the first scroll
+        and exits together with the video when sticky unpins.
+        Desktop fills the canvas (no teaser).
       */}
-      <div className="sticky top-[58px] md:top-[64px] h-[calc(70vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
+      <div className="sticky top-[58px] md:top-[64px] h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-x-0 top-0 h-[65%] w-full md:h-full"
           aria-hidden
         />
+        {mobileTeaser && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 flex h-[35%] flex-col items-end justify-center px-5 pb-8 text-right md:hidden"
+            aria-hidden
+          >
+            {mobileTeaser}
+          </div>
+        )}
         {!hasPlaceholder && (
           // Tiny brand-tinted shimmer while the placeholder frame downloads
           // (usually <500ms on broadband). Subtle so it doesn't compete with

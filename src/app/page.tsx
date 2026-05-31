@@ -61,39 +61,52 @@ export default function Home() {
         */}
         <section id="hero" className="-mt-[58px] md:-mt-[64px]">
           {heroManifest ? (
-            <HeroSequence manifest={heroManifest} bandName={artist.name} />
+            <HeroSequence
+              manifest={heroManifest}
+              bandName={artist.name}
+              mobileTeaser={
+                <>
+                  <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
+                    DISCOGRAPHY · {songs.length} SINGLES
+                  </p>
+                  <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
+                    כל השירים
+                  </h2>
+                </>
+              }
+            />
           ) : (
             <Hero heroImage={heroImage} bandName={artist.name} />
           )}
         </section>
         {/*
-          Mobile: song grid pulls up 150vh under the hero. Because the
-          hero pins for 230vh and scrubs for 150vh, this puts the song
-          grid's top at viewport-bottom roughly 1/3 of the way through
-          the scrub — the user sees "DISCOGRAPHY · 17 SINGLES" peek up
-          from below well before the hero finishes, instead of waiting
-          for the hold phase to start. Desktop unaffected (mt-0).
+          Music section: back to mt-0. The "peek up" effect is replaced by
+          the in-sticky mobileTeaser inside HeroSequence — locked alongside
+          the video, exits with it.
         */}
-        <section id="music" className="relative z-10 -mt-[150vh] md:mt-0">
+        <section id="music">
           <SongGrid songs={orderedForGrid} />
         </section>
 
-        {/* Scroll-driven envelope-opening clip — visual transition between
-            the music section and "מי אנחנו". Only renders if frames built. */}
-        {envelopeManifest && <EnvelopeSequence manifest={envelopeManifest} />}
+        {/* Scroll-driven envelope-opening clip + locked teaser of the
+            next section ("מי אנחנו") on mobile. */}
+        {envelopeManifest && (
+          <EnvelopeSequence
+            manifest={envelopeManifest}
+            mobileTeaser={
+              <>
+                <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
+                  ABOUT · מי אנחנו
+                </p>
+                <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
+                  מי אנחנו
+                </h2>
+              </>
+            }
+          />
+        )}
 
-        {/*
-          Mobile: AboutSection pulls up 200vh under the envelope so that
-          AboutSection's top sits exactly at the bottom of the envelope's
-          sticky canvas from the moment the envelope starts pinning. Result:
-          the "ABOUT · מי אנחנו" label + the start of the heading are
-          visible IN THE BOTTOM SLICE OF VIEWPORT FROM THE FIRST SCROLL,
-          and more of the AboutSection rolls up as the user scrolls
-          through the envelope. Desktop unaffected.
-        */}
-        <div className="relative z-10 -mt-[200vh] md:mt-0">
-          <AboutSection />
-        </div>
+        <AboutSection />
         <CollabContact />
         <AboutStrip totalSongs={songs.length} />
         <Marquee items={bottomMarquee} reverse />

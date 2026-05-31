@@ -29,11 +29,17 @@ type Manifest = {
  */
 export function HeroSequence({
   manifest,
+  mobileTeaser,
 }: {
   manifest: Manifest;
   // (bandName kept in the type for parent compatibility but no longer rendered —
   // see the JSX below; left out of the destructure to silence the unused-var lint)
   bandName?: string;
+  // Optional content rendered at the bottom of the sticky area on mobile only
+  // — locked in place alongside the video for the entire sticky pin range,
+  // exits with the video. Used to show the next section's title/teaser so
+  // the user always sees what's coming.
+  mobileTeaser?: React.ReactNode;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -288,21 +294,29 @@ export function HeroSequence({
       aria-label="פתיח"
     >
       {/*
-        Sticky child on mobile is h-[70vh] (was full-screen). Two effects
-        compound: (1) shorter canvas → cover-fit crops less of the
-        horizontal of the source → viewer sees MORE of the source image;
-        (2) the bottom ~30vh of viewport now shows whatever is in DOM
-        flow underneath, which — together with the negative margin on
-        the next section in page.tsx — lets the song grid PEEK UP from
-        below during the hero's hold phase. No wasted black space.
-        Desktop stays full-bleed.
+        Sticky child is full viewport on every breakpoint, so the canvas
+        AND the mobile teaser strip below it are pinned together for the
+        entire scrub. On mobile the canvas occupies the top 65% of the
+        sticky area; the bottom 35% holds the teaser content, both
+        locked in place — they enter together when the hero starts
+        pinning, and exit together when it unpins ("locked in the video
+        area + a little pull").
+        Desktop fills the canvas to full viewport (no teaser shown).
       */}
-      <div className="sticky top-0 h-[70vh] md:h-screen w-full overflow-hidden bg-[var(--color-bg)]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-x-0 top-0 h-[65vh] w-full md:h-full"
           aria-hidden
         />
+        {mobileTeaser && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 flex h-[35vh] flex-col items-end justify-center px-5 pb-8 text-right md:hidden"
+            aria-hidden
+          >
+            {mobileTeaser}
+          </div>
+        )}
 
         <div
           ref={overlayRef}
@@ -330,7 +344,8 @@ export function HeroSequence({
         />
 
         {/* Scroll cue only — band name removed so the video's own typography reads cleanly */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--color-muted-fg)]">
+        {/* Scroll cue — hidden on mobile when teaser takes the bottom area */}
+        <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[var(--color-muted-fg)] md:flex">
           <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em]">גלגל למטה</span>
           <span aria-hidden className="block h-10 w-px animate-pulse bg-[var(--color-accent)]" />
         </div>
