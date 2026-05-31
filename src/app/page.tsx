@@ -96,7 +96,7 @@ export default function Home() {
             mobileTeaser={
               <>
                 <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
-                  ABOUT · מי אנחנו
+                  ABOUT · אודות
                 </p>
                 <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
                   מי אנחנו
