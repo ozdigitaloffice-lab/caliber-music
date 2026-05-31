@@ -288,15 +288,16 @@ export function HeroSequence({
       aria-label="פתיח"
     >
       {/*
-        Sticky child height on mobile is 88vh (was 100vh full-screen).
-        Reason: the source video is square (1:1) — on a tall portrait
-        phone viewport, cover-fit crops the SIDES of the image heavily
-        to fit the height. A slightly shorter sticky container makes
-        the canvas closer to square, so cover-fit crops less and the
-        viewer sees more of the source horizontally.
+        Sticky child on mobile is h-[70vh] (was full-screen). Two effects
+        compound: (1) shorter canvas → cover-fit crops less of the
+        horizontal of the source → viewer sees MORE of the source image;
+        (2) the bottom ~30vh of viewport now shows whatever is in DOM
+        flow underneath, which — together with the negative margin on
+        the next section in page.tsx — lets the song grid PEEK UP from
+        below during the hero's hold phase. No wasted black space.
         Desktop stays full-bleed.
       */}
-      <div className="sticky top-0 h-[88vh] md:h-screen w-full overflow-hidden bg-[var(--color-bg)]">
+      <div className="sticky top-0 h-[70vh] md:h-screen w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full"

@@ -66,7 +66,14 @@ export default function Home() {
             <Hero heroImage={heroImage} bandName={artist.name} />
           )}
         </section>
-        <section id="music">
+        {/*
+          On mobile, the song grid pulls up 20vh under the hero. Combined
+          with the hero's h-[70vh] sticky child, this gives a "peek up"
+          effect — the user sees the section title appear at the bottom
+          of viewport during the hero's hold phase, instead of a black
+          slab. Desktop unaffected (mt-0).
+        */}
+        <section id="music" className="relative z-10 -mt-[20vh] md:mt-0">
           <SongGrid songs={orderedForGrid} />
         </section>
 
@@ -74,7 +81,10 @@ export default function Home() {
             the music section and "מי אנחנו". Only renders if frames built. */}
         {envelopeManifest && <EnvelopeSequence manifest={envelopeManifest} />}
 
-        <AboutSection />
+        {/* Same mobile peek-up as the music section above */}
+        <div className="relative z-10 -mt-[20vh] md:mt-0">
+          <AboutSection />
+        </div>
         <CollabContact />
         <AboutStrip totalSongs={songs.length} />
         <Marquee items={bottomMarquee} reverse />

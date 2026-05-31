@@ -240,12 +240,12 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
         viewport — no overflow under the Nav, no overflow off the bottom.
       */}
       {/*
-        Same mobile-only height shrink as HeroSequence: 88vh on phones
-        (minus the 58px Nav offset), full-bleed on desktop. The shorter
-        canvas means cover-fit crops less of the source horizontally,
-        so the viewer sees more of the actual frame content.
+        Same mobile shrink as HeroSequence: 70vh on phones, full-bleed
+        on desktop. The bottom of viewport during sticky shows the next
+        section (About) peeking up — see the negative margin on the
+        AboutSection wrapper in page.tsx.
       */}
-      <div className="sticky top-[58px] md:top-[64px] h-[calc(88vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
+      <div className="sticky top-[58px] md:top-[64px] h-[calc(70vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full"
