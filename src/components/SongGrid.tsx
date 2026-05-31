@@ -27,7 +27,7 @@ export function SongGrid({ songs }: { songs: Song[] }) {
         <header className="mb-10 flex flex-col items-start gap-2 md:mb-14 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
-              DISCOGRAPHY · {songs.length} SINGLES
+              ALL CALIBER FAMILY SONGS
             </p>
             <RevealHeading
               as="h2"
