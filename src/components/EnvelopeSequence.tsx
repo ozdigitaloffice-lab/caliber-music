@@ -231,7 +231,15 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
       className="relative h-[270vh] w-full"
       aria-label="קליפ מעבר"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">
+      {/*
+        Sticky child pins BELOW the fixed Nav (58px mobile, 64px md+) instead
+        of at top:0. Without this, the Nav covered the top slice of the
+        canvas while the section was pinned, hiding the part of the
+        envelope animation that's near the top of each frame. Shrinking the
+        height by the same amount keeps the canvas exactly in the visible
+        viewport — no overflow under the Nav, no overflow off the bottom.
+      */}
+      <div className="sticky top-[58px] md:top-[64px] h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg)]">
         <canvas
           ref={canvasRef}
           className="absolute inset-0 h-full w-full"
