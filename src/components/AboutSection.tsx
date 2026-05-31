@@ -25,14 +25,14 @@ export function AboutSection() {
         {/* Text column */}
         <div>
           <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
-            מי אנחנו · ABOUT
+            מי אנחנו
           </p>
           <RevealHeading
             as="h2"
             id="about-title"
             className="mt-3 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] md:text-7xl"
           >
-            מי אנחנו
+            מי אנחנו · ABOUT
           </RevealHeading>
 
           <p className="mt-8 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:text-xl">
