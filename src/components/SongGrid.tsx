@@ -27,14 +27,14 @@ export function SongGrid({ songs }: { songs: Song[] }) {
         <header className="mb-10 flex flex-col items-start gap-2 md:mb-14 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
-              MUSIC · כל השירים
+              ALL CALIBER FAMILY SONGS
             </p>
             <RevealHeading
               as="h2"
               id="disc-title"
-              className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] md:text-7xl"
+              className="mt-2 font-[var(--font-display-en)] text-4xl font-bold uppercase leading-[0.95] tracking-tight md:text-6xl"
             >
-              כל השירים
+              DISCOGRAPHY · {songs.length} SINGLES
             </RevealHeading>
           </div>
           <p className="max-w-md font-[var(--font-body)] text-sm leading-relaxed text-[var(--color-muted-fg)] md:text-right">
