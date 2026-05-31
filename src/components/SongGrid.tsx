@@ -39,7 +39,6 @@ export function SongGrid({ songs }: { songs: Song[] }) {
           </div>
           <p className="max-w-md font-[var(--font-body)] text-sm leading-relaxed text-[var(--color-muted-fg)] md:text-right">
             הקש על שיר וקבל את הבחירה — Spotify, Apple Music או YouTube.
-            פלטפורמת ברירת מחדל לא קיימת; אתה בוחר.
           </p>
         </header>
 
