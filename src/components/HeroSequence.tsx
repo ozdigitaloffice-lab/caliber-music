@@ -284,7 +284,11 @@ export function HeroSequence({
   return (
     <section
       ref={sectionRef}
-      className="relative h-[300vh] w-full"
+      // Mobile gets a slightly shorter total scroll trail (270vh instead
+      // of 300vh) so the hero doesn't dominate the small-screen scroll
+      // budget. SCRUB_VH stays 150 → mobile hold shrinks to 20vh, desktop
+      // hold stays at 50vh. Tunable per user feedback.
+      className="relative h-[270vh] w-full md:h-[300vh]"
       aria-label="פתיח"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[var(--color-bg)]">

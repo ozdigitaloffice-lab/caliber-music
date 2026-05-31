@@ -228,7 +228,9 @@ export function EnvelopeSequence({ manifest }: { manifest: Manifest }) {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[270vh] w-full"
+      // Mobile total scroll: 240vh instead of 270vh. SCRUB_VH stays 100 →
+      // mobile hold shrinks to 40vh, desktop hold stays at 70vh.
+      className="relative h-[240vh] w-full md:h-[270vh]"
       aria-label="קליפ מעבר"
     >
       {/*
