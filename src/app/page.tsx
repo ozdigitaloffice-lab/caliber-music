@@ -67,13 +67,14 @@ export default function Home() {
           )}
         </section>
         {/*
-          On mobile, the song grid pulls up 20vh under the hero. Combined
-          with the hero's h-[70vh] sticky child, this gives a "peek up"
-          effect — the user sees the section title appear at the bottom
-          of viewport during the hero's hold phase, instead of a black
-          slab. Desktop unaffected (mt-0).
+          Mobile: song grid pulls up 150vh under the hero. Because the
+          hero pins for 230vh and scrubs for 150vh, this puts the song
+          grid's top at viewport-bottom roughly 1/3 of the way through
+          the scrub — the user sees "DISCOGRAPHY · 17 SINGLES" peek up
+          from below well before the hero finishes, instead of waiting
+          for the hold phase to start. Desktop unaffected (mt-0).
         */}
-        <section id="music" className="relative z-10 -mt-[20vh] md:mt-0">
+        <section id="music" className="relative z-10 -mt-[150vh] md:mt-0">
           <SongGrid songs={orderedForGrid} />
         </section>
 
@@ -81,8 +82,16 @@ export default function Home() {
             the music section and "מי אנחנו". Only renders if frames built. */}
         {envelopeManifest && <EnvelopeSequence manifest={envelopeManifest} />}
 
-        {/* Same mobile peek-up as the music section above */}
-        <div className="relative z-10 -mt-[20vh] md:mt-0">
+        {/*
+          Mobile: AboutSection pulls up 200vh under the envelope so that
+          AboutSection's top sits exactly at the bottom of the envelope's
+          sticky canvas from the moment the envelope starts pinning. Result:
+          the "ABOUT · מי אנחנו" label + the start of the heading are
+          visible IN THE BOTTOM SLICE OF VIEWPORT FROM THE FIRST SCROLL,
+          and more of the AboutSection rolls up as the user scrolls
+          through the envelope. Desktop unaffected.
+        */}
+        <div className="relative z-10 -mt-[200vh] md:mt-0">
           <AboutSection />
         </div>
         <CollabContact />
