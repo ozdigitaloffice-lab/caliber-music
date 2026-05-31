@@ -32,7 +32,7 @@ export function AboutSection() {
             id="about-title"
             className="mt-3 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] md:text-7xl"
           >
-            מי אנחנו · ABOUT
+            מי אנחנו
           </RevealHeading>
 
           <p className="mt-8 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:text-xl">
