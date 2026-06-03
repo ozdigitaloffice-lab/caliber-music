@@ -141,7 +141,7 @@ export function HeroSequence({
         // landscape (desktop) viewports. Biasing dy toward 0.35 keeps faces
         // visible while still showing the walker in the lower part.
         const POSITION_Y_BIAS = 0.35;
-        const drawFrame = (frame: HTMLImageElement) => {
+        const drawFrame = (frame: HTMLImageElement, progress = 0) => {
           const w = canvas.clientWidth;
           const h = canvas.clientHeight;
           const fA = frame.naturalWidth / frame.naturalHeight;
@@ -149,17 +149,24 @@ export function HeroSequence({
           let dw, dh, dx, dy;
 
           // Cover-fit on both breakpoints (image always fills the whole
-          // canvas), but the *vertical anchor* differs:
-          //   Mobile — keep POSITION_Y_BIAS (0.35) so the walker's
-          //   upper body stays visible on the short 65 vh canvas.
-          //   Desktop — anchor the BOTTOM of the image (dy = h − dh).
-          //   The frame always fills the full screen like the original
-          //   cover, but ALL the overflow happens off the top — the
-          //   bottom edge of the frame is preserved through the entire
-          //   scrub, and as the sticky unpins and the canvas scrolls
-          //   away the user sees the same bottom-anchored edge transit
-          //   the viewport, giving the "scroll down past it and the
-          //   continuation is at the bottom" feel the user asked for.
+          // canvas).
+          //
+          // Desktop vertical anchor is a *scroll-linked pan* across the
+          // taller-than-canvas image:
+          //     dy = (h − dh) × progress
+          //   progress = 0  →  dy = 0          (top of frame at top of
+          //                                     canvas — sky visible)
+          //   progress = 1  →  dy = h − dh     (bottom of frame at
+          //                                     bottom of canvas —
+          //                                     continuation visible)
+          //   Anything in-between is a smooth pan down through the
+          //   image as the user scrubs. So the scroll drives BOTH the
+          //   frame index AND a camera-style vertical pan, doubling
+          //   the sense of motion through the hero.
+          //
+          // Mobile keeps POSITION_Y_BIAS (0.35) — the canvas is only
+          // 65 vh tall and the scrub-linked pan reads as jitter at
+          // that height.
           const isDesktop = window.innerWidth >= 768;
           if (fA > cA) {
             dh = h;
@@ -170,7 +177,9 @@ export function HeroSequence({
             dw = w;
             dh = w / fA;
             dx = 0;
-            dy = isDesktop ? h - dh : (h - dh) * POSITION_Y_BIAS;
+            dy = isDesktop
+              ? (h - dh) * progress
+              : (h - dh) * POSITION_Y_BIAS;
           }
 
           ctx.clearRect(0, 0, w, h);
@@ -210,7 +219,9 @@ export function HeroSequence({
         resizeHandler = () => {
           setCanvasSize();
           const f = nearestLoaded(currentIndex);
-          if (f) drawFrame(f);
+          // Pass current displayedProgress so the bottom-anchor pan
+          // stays put across resizes instead of snapping to top.
+          if (f) drawFrame(f, displayedProgress);
         };
         window.addEventListener("resize", resizeHandler);
 
@@ -247,11 +258,12 @@ export function HeroSequence({
             totalToLoad - 1,
             Math.floor(p * (totalToLoad - 1)),
           );
-          if (target !== currentIndex) {
-            currentIndex = target;
-            const f = nearestLoaded(target);
-            if (f) drawFrame(f);
-          }
+          // Re-draw every tick — even when the frame index hasn't
+          // changed — because the desktop pan needs to update with
+          // sub-frame progress (dy depends on p continuously).
+          currentIndex = target;
+          const f = nearestLoaded(target);
+          if (f) drawFrame(f, p);
           // Overlay deepens with scroll. No text element to fade — the source
           // video has the band name + branding baked in already.
           if (overlayRef.current) {
