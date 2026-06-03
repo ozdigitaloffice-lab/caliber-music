@@ -393,8 +393,12 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             decoration.
           */}
           {(() => {
-            const VIDEO_H = HEIGHT;
-            const VIDEO_W = Math.round(VIDEO_H * 9 / 16);
+            // Size is 25% larger than the helix HEIGHT — user asked for a
+            // more prominent microphone. The 9:16 source aspect drives
+            // the width. Mic extends a bit beyond the helix top/bottom
+            // (intentional — reads as "burst" rather than "trapped").
+            const VIDEO_H = Math.round(HEIGHT * 1.25);
+            const VIDEO_W = Math.round((VIDEO_H * 9) / 16);
             return (
               <video
                 ref={videoRef}
@@ -414,11 +418,29 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                 muted
                 playsInline
                 preload="none"
-                poster="/mic-rotating-poster.jpg"
+                poster="/mic-rotating-poster.png"
                 aria-hidden
               >
+                {/*
+                  Source order matters — the browser picks the first
+                  type it can decode:
+                    1. WebM/VP9 with yuva420p alpha channel (chroma-keyed
+                       at encode time) → Chrome, Firefox, Edge see the
+                       mic with a transparent background, and the back
+                       covers of the helix show THROUGH the gaps in the
+                       gold microphone artwork.
+                    2. MP4/H.264 fallback (opaque, black background) →
+                       Safari and older browsers. Since the site bg is
+                       also near-black, the black bg blends into the
+                       page; the back covers aren't visible through the
+                       mic on these clients but the composition still
+                       reads correctly.
+                */}
                 {shouldLoadVideo && (
-                  <source src="/mic-rotating.mp4" type="video/mp4" />
+                  <>
+                    <source src="/mic-rotating-alpha.webm" type="video/webm" />
+                    <source src="/mic-rotating.mp4" type="video/mp4" />
+                  </>
                 )}
               </video>
             );
