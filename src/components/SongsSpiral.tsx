@@ -408,7 +408,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             //     the structure, not a backdrop.
             const VIDEO_H = Math.round(HEIGHT * 0.75);
             const VIDEO_W = Math.round((VIDEO_H * 9) / 16);
-            const DIAGONAL_DEG = 18;
+            const DIAGONAL_DEG = 25;
             return (
               <video
                 ref={videoRef}
