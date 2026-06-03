@@ -513,7 +513,18 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
               >
                 <button
                   type="button"
-                  onClick={() => setOpenSong(song)}
+                  onClick={() => {
+                    // Touch devices fire onMouseEnter as part of a tap
+                    // (simulated mouse events) but never fire the matching
+                    // onMouseLeave when the user lifts their finger. Without
+                    // clearing here, the cover would stay locked in its
+                    // hover state — yellow border + scale-up + screw paused
+                    // — even after the modal closes. Forcing -1 here
+                    // releases the hover so the screw resumes and the cover
+                    // settles back to its rest style.
+                    setHoveredIndex(-1);
+                    setOpenSong(song);
+                  }}
                   aria-label={`${song.title} — בחר/י פלטפורמה להשמעה`}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() =>
@@ -620,8 +631,17 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
         </span>
       </div>
 
-      {/* Platform picker for spiral covers (same modal the song grid uses) */}
-      <PlatformPicker song={openSong} onClose={() => setOpenSong(null)} />
+      {/* Platform picker for spiral covers (same modal the song grid uses).
+          onClose also clears hoveredIndex — defence-in-depth for touch
+          devices where the cover that triggered the modal could otherwise
+          still be locked in its hover state when the user dismisses it. */}
+      <PlatformPicker
+        song={openSong}
+        onClose={() => {
+          setOpenSong(null);
+          setHoveredIndex(-1);
+        }}
+      />
     </div>
     </div>
   );
