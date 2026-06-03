@@ -5,7 +5,6 @@ import type { Song } from "@/lib/songs";
 import { SongCard } from "./SongCard";
 import { PlatformPicker } from "./PlatformPicker";
 import { RevealHeading } from "./RevealHeading";
-import { SongsSpiral } from "./SongsSpiral";
 
 /**
  * Bento-style grid of all songs:
@@ -58,9 +57,6 @@ export function SongGrid({ songs }: { songs: Song[] }) {
             </div>
           ))}
         </div>
-
-        {/* 3D helix closer — punctuates the end of the discography */}
-        <SongsSpiral />
       </div>
 
       <PlatformPicker song={openSong} onClose={() => setOpenSong(null)} />

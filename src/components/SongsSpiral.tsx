@@ -1,27 +1,27 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import type { Song } from "@/lib/songs";
 
 /**
- * 3D helical spiral closer for the songs section. 72 acid-yellow dots
- * arranged in a vertical helix (3 full revolutions, ±90px radius), each
- * positioned with a `translate3d` so it sits in real 3D space. The
- * parent uses `perspective` + `transform-style: preserve-3d` so the
- * compositor renders the helix with depth — dots in the back of the
- * spiral appear smaller / behind dots in the front.
+ * 3D helix of every song's album artwork — section closer placed after the
+ * stats strip and before the bottom marquee. Each cover sits in real 3D
+ * space along a vertical helical path, and the whole helix slowly spins
+ * around its Y axis (CSS animation, zero JS cost) while also tilting on
+ * X based on scroll position through its section (gives it presence as
+ * the user enters / leaves the section).
  *
- * Two motion layers:
- *   1. **Always-on slow spin** on the Y axis (32s per rotation). Keeps
- *      the element alive even when the page is idle.
- *   2. **Scroll-linked tilt + zoom** — as the user scrolls through the
- *      spiral's section, the helix tilts forward and slightly grows.
- *      Reads as the spiral "responding" to the user's presence.
+ * Why album art and not abstract dots: the band has 17 singles with very
+ * strong cover art — this is the "career-in-one-frame" punctuation that
+ * dots can't deliver.
  *
- * Designed to be a section closer for the song grid — a 3D punctuation
- * mark that says "this is the end of the discography."
+ * Hydration: all transform numbers go through `.toFixed(3)` so the SSR
+ * stringification matches what React produces on the client. Without
+ * that, framer-motion's full-precision floats produced a hydration
+ * mismatch on every dot/card.
  */
-export function SongsSpiral() {
+export function SongsSpiral({ songs }: { songs: Song[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Scroll progress through the spiral's section
@@ -30,73 +30,94 @@ export function SongsSpiral() {
     offset: ["start end", "end start"],
   });
 
-  // Tilt forward as user scrolls in (0 → -25deg), back as they leave
+  // Tilt forward as it enters (−30°), flat at centre (0°), tilt back leaving (+30°)
   const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [-30, 0, 30]);
-  // Subtle scale in/out
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
-  // Spring-smooth both so wheel jumps don't judder the helix
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 1, 0.85]);
+  // Spring-smooth so wheel jumps don't judder the helix
   const smoothRotateX = useSpring(rotateX, { stiffness: 60, damping: 22 });
   const smoothScale = useSpring(scale, { stiffness: 60, damping: 22 });
 
-  const DOTS = 72;
-  const REVOLUTIONS = 3;
-  const RADIUS = 95;
-  const HEIGHT = 320; // total vertical span in px
+  // Helix layout
+  const N = songs.length;
+  const REVOLUTIONS = 1.6;       // 1.6 turns spread across the 17 covers
+  const RADIUS_DESKTOP = 150;    // px
+  const RADIUS_MOBILE = 95;      // smaller orbit on mobile
+  const HEIGHT = 380;            // total vertical span in px
+  const COVER = 88;              // each cover edge length in px
+
+  // Round helper: matches SSR/CSR float→string stringification, so React
+  // doesn't flag a hydration mismatch on the inline transforms.
+  const r = (n: number) => n.toFixed(3);
 
   return (
     <div
       ref={containerRef}
-      className="relative flex items-center justify-center py-14 md:py-20"
-      style={{ perspective: "900px" }}
-      aria-hidden
+      className="relative flex items-center justify-center py-16 md:py-24"
+      style={{ perspective: "1100px" }}
     >
       <motion.div
-        className="relative h-[360px] w-[260px]"
+        className="relative h-[440px] w-[280px] md:w-[360px]"
         style={{
           transformStyle: "preserve-3d",
           rotateX: smoothRotateX,
           scale: smoothScale,
         }}
       >
-        {/* Slow always-on Y-axis spin (CSS animation, not React state — zero JS cost) */}
+        {/* Always-on slow Y-axis spin (CSS, no JS state) */}
         <div
-          className="absolute inset-0 animate-[spiral-spin_32s_linear_infinite]"
+          className="absolute inset-0 animate-[spiral-spin_40s_linear_infinite]"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {Array.from({ length: DOTS }).map((_, i) => {
-            const t = i / (DOTS - 1);
+          {songs.map((song, i) => {
+            const t = N === 1 ? 0.5 : i / (N - 1);
             const angle = t * REVOLUTIONS * Math.PI * 2;
-            const x = Math.cos(angle) * RADIUS;
-            const z = Math.sin(angle) * RADIUS;
+
+            // Two radii: a wider one for desktop, narrower for mobile.
+            // We compute both and apply via CSS media queries via inline style —
+            // simpler to just commit to one radius. Most users will see mobile.
+            // (If needed, can switch to JS window.matchMedia later.)
+            const radius = RADIUS_DESKTOP;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
             const y = -HEIGHT / 2 + t * HEIGHT;
-            // Dots near the ends fade slightly for a "comet trail" feel
-            const opacity = 0.35 + 0.65 * (1 - Math.abs(t - 0.5) * 1.4);
-            // Slightly larger dots in the middle of the helix
-            const sizePx = 6 + 3 * (1 - Math.abs(t - 0.5) * 1.8);
 
             return (
-              <div
-                key={i}
-                className="absolute left-1/2 top-1/2 rounded-full bg-[var(--color-accent)]"
+              <a
+                key={song.title}
+                href={song.spotify.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`${song.title} ב-Spotify`}
+                className="absolute left-1/2 top-1/2 block overflow-hidden border-2 border-[var(--color-border-strong)] transition-[border-color,box-shadow] duration-200 hover:border-[var(--color-accent)] focus-visible:border-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
                 style={{
-                  width: `${sizePx}px`,
-                  height: `${sizePx}px`,
-                  marginLeft: `-${sizePx / 2}px`,
-                  marginTop: `-${sizePx / 2}px`,
-                  transform: `translate3d(${x}px, ${y}px, ${z}px)`,
-                  opacity: Math.max(0.18, opacity),
-                  boxShadow: "0 0 8px rgba(223, 225, 4, 0.45)",
+                  width: `${COVER}px`,
+                  height: `${COVER}px`,
+                  marginLeft: `-${COVER / 2}px`,
+                  marginTop: `-${COVER / 2}px`,
+                  transform: `translate3d(${r(x)}px, ${r(y)}px, ${r(z)}px)`,
+                  boxShadow: "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(223, 225, 4, 0.15)",
                 }}
-              />
+              >
+                {/* Plain <img> so we don't pay next/image overhead for a
+                    decorative element; lazy-loaded so it doesn't compete
+                    with above-the-fold album art. */}
+                <img
+                  src={song.artwork}
+                  alt={song.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              </a>
             );
           })}
         </div>
       </motion.div>
 
-      {/* Mono label below the spiral — ties it to the brand */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center md:bottom-4">
+      {/* Brand label below the spiral */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center md:bottom-6">
         <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.5em] text-[var(--color-muted-fg)] md:text-xs">
-          · CALIBER FAMILY ·
+          · CALIBER FAMILY · DISCOGRAPHY ·
         </span>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { AboutSection } from "@/components/AboutSection";
 import { CollabContact } from "@/components/CollabContact";
 import { AboutStrip } from "@/components/AboutStrip";
 import { Footer } from "@/components/Footer";
+import { SongsSpiral } from "@/components/SongsSpiral";
 import { songsData, type Song } from "@/lib/songs";
 import { loadHeroManifest } from "@/lib/heroManifest";
 import { loadEnvelopeManifest } from "@/lib/envelopeManifest";
@@ -88,27 +89,41 @@ export default function Home() {
           <SongGrid songs={orderedForGrid} />
         </section>
 
-        {/* Scroll-driven envelope-opening clip + locked teaser of the
-            next section ("מי אנחנו") on mobile. */}
+        {/*
+          Envelope is pulled UP under the end of the song grid via
+          -mt-[40vh] on mobile / -mt-[20vh] on desktop. The sticky child
+          (opaque canvas) starts pinning earlier in the scroll, so as the
+          user finishes the last row of song cards, the envelope's first
+          frame is already rising up underneath instead of waiting for a
+          fresh scroll. Reads as continuous flow, not "stuck on a wall."
+        */}
         {envelopeManifest && (
-          <EnvelopeSequence
-            manifest={envelopeManifest}
-            mobileTeaser={
-              <>
-                <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
-                  ABOUT · אודות
-                </p>
-                <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
-                  מי אנחנו
-                </h2>
-              </>
-            }
-          />
+          <div className="relative -mt-[40vh] md:-mt-[20vh]">
+            <EnvelopeSequence
+              manifest={envelopeManifest}
+              mobileTeaser={
+                <>
+                  <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
+                    ABOUT · אודות
+                  </p>
+                  <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
+                    מי אנחנו
+                  </h2>
+                </>
+              }
+            />
+          </div>
         )}
 
         <AboutSection />
         <CollabContact />
         <AboutStrip totalSongs={songs.length} />
+
+        {/* 3D helix of all 17 album covers — page closer, sits between the
+            stats and the bottom marquee. Each cover links to its Spotify
+            URL on click. */}
+        <SongsSpiral songs={songs} />
+
         <Marquee items={bottomMarquee} reverse />
         <Footer
           spotifyUrl={artist.spotify.url}
