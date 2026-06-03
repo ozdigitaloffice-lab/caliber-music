@@ -61,14 +61,35 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   const smoothRotateX = useSpring(rotateX, { stiffness: 60, damping: 22 });
   const smoothScale = useSpring(containerScale, { stiffness: 60, damping: 22 });
 
+  // ────── Breakpoint detection ──────
+  // The spiral was sized for mobile and looked lost on large desktops
+  // (a tiny jewel floating in the middle of a 1900px-wide section). At
+  // md+ we scale every geometric constant up so the helix fills more of
+  // the available canvas without crowding the section padding.
+  //
+  // Server + first-client render both use the mobile defaults (so SSR
+  // hydration matches). The matchMedia listener flips to desktop sizes
+  // on mount; subsequent resizes between breakpoints also re-trigger.
+  // The render-loop's effect depends on `isDesktop`, so its closure
+  // captures the right geometry after each switch.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   // ────── Geometry ──────
   const N = songs.length;
   const REVOLUTIONS = 1.6;
-  const RADIUS = 150;
-  const HEIGHT = 380;
-  const COVER = 88;
-  const BALL = 18;
-  const ARC_HEIGHT = 40;
+  const RADIUS = isDesktop ? 240 : 150;
+  const HEIGHT = isDesktop ? 560 : 380;
+  const COVER = isDesktop ? 128 : 88;
+  const BALL = isDesktop ? 26 : 18;
+  const ARC_HEIGHT = isDesktop ? 60 : 40;
+  const PERSPECTIVE = isDesktop ? 1500 : 1100;
 
   // ────── Timings ──────
   // 75s per full thread cycle = each cover takes 75s to travel from the
@@ -211,17 +232,20 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
+    // Re-mount the loop when the breakpoint flips so its closure picks
+    // up the new geometry (RADIUS / HEIGHT / etc.). N change is also
+    // a re-mount trigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [N]);
+  }, [N, isDesktop]);
 
   return (
     <div
       ref={containerRef}
-      className="relative flex items-center justify-center py-16 md:py-24"
-      style={{ perspective: "1100px" }}
+      className="relative flex items-center justify-center py-16 md:py-28"
+      style={{ perspective: `${PERSPECTIVE}px` }}
     >
       <motion.div
-        className="relative h-[440px] w-[280px] md:w-[360px]"
+        className="relative h-[440px] w-[280px] md:h-[680px] md:w-[600px]"
         style={{
           transformStyle: "preserve-3d",
           rotateX: smoothRotateX,
