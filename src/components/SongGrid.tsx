@@ -20,7 +20,7 @@ export function SongGrid({ songs }: { songs: Song[] }) {
   return (
     <section
       id="discography"
-      className="relative bg-[var(--color-bg)] py-16 md:py-24"
+      className="relative bg-[var(--color-bg)] pt-3 pb-16 md:py-24"
       aria-labelledby="disc-title"
     >
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
