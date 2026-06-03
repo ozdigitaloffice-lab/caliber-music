@@ -9,6 +9,7 @@ import { CollabContact } from "@/components/CollabContact";
 import { AboutStrip } from "@/components/AboutStrip";
 import { Footer } from "@/components/Footer";
 import { SongsSpiral } from "@/components/SongsSpiral";
+import { MobileTeaserTitle } from "@/components/MobileTeaserTitle";
 import { songsData, type Song } from "@/lib/songs";
 import { loadHeroManifest } from "@/lib/heroManifest";
 import { loadEnvelopeManifest } from "@/lib/envelopeManifest";
@@ -66,14 +67,10 @@ export default function Home() {
               manifest={heroManifest}
               bandName={artist.name}
               mobileTeaser={
-                <>
-                  <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
-                    ALL CALIBER FAMILY SONGS
-                  </p>
-                  <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
-                    כל השירים
-                  </h2>
-                </>
+                <MobileTeaserTitle
+                  eyebrow="ALL CALIBER FAMILY SONGS"
+                  title="כל השירים"
+                />
               }
             />
           ) : (
@@ -102,14 +99,10 @@ export default function Home() {
             <EnvelopeSequence
               manifest={envelopeManifest}
               mobileTeaser={
-                <>
-                  <p className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.4em] text-[var(--color-accent)]">
-                    ABOUT · אודות
-                  </p>
-                  <h2 className="mt-2 font-[var(--font-display-he)] text-5xl font-black leading-[0.9] text-[var(--color-fg)]">
-                    מי אנחנו
-                  </h2>
-                </>
+                <MobileTeaserTitle
+                  eyebrow="ABOUT · אודות"
+                  title="מי אנחנו"
+                />
               }
             />
           </div>
