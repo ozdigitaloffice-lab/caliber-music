@@ -87,15 +87,22 @@ export default function Home() {
         </section>
 
         {/*
-          Envelope pulled UP slightly under the end of the song grid via
-          -mt-[15vh] mobile / -mt-[8vh] desktop. Just enough overlap to
-          feel continuous (the envelope's first frame peeks up as the
-          last row of songs scrolls past), without the opaque sticky
-          covering the last song cards before the user has read them.
-          Was -mt-[40vh] / -mt-[20vh] but that buried the bottom songs.
+          Envelope pulled UP under the end of the song grid for continuous
+          flow. The overlap must stay smaller than the song grid's bottom
+          padding (`pb-16` ≈ 8vh on mobile, `md:py-24` ≈ 12vh on desktop)
+          or the envelope's opaque sticky bg will swallow the last row of
+          song cards.
+
+          Iteration history:
+            -mt-[40vh] / -mt-[20vh] : buried the bottom songs
+            -mt-[15vh] / -mt-[8vh]  : mobile still ate ~7vh of cards
+                                       (15vh overlap vs 8vh padding)
+            -mt-[5vh]  / -mt-[8vh]  : current — mobile overlap now fits
+                                       safely inside the 8vh padding with
+                                       ~3vh of breathing room
         */}
         {envelopeManifest && (
-          <div className="relative -mt-[15vh] md:-mt-[8vh]">
+          <div className="relative -mt-[5vh] md:-mt-[8vh]">
             <EnvelopeSequence
               manifest={envelopeManifest}
               mobileTeaser={
