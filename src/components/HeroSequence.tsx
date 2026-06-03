@@ -177,7 +177,13 @@ export function HeroSequence({
               dw = (h * fA) * DESKTOP_FIT_SCALE;
             }
             dx = (w - dw) / 2;
-            dy = (h - dh) / 2;
+            // Anchor the bottom of the image to the canvas bottom: when
+            // DESKTOP_FIT_SCALE pushes the image taller than the canvas,
+            // ALL the overflow happens off the TOP (cropping the sky /
+            // upper portion), leaving the bottom of the frame intact.
+            // Per user — "don't crop it from below even if it spills
+            // past the frame of the screen."
+            dy = h - dh;
           } else if (fA > cA) {
             dh = h;
             dw = h * fA;
