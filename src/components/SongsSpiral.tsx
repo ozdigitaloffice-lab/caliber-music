@@ -82,14 +82,21 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   }, []);
 
   // ────── Geometry ──────
+  // Desktop is intentionally wider and shorter than mobile (RADIUS up,
+  // HEIGHT down): on a large monitor the spiral reads better as a
+  // landscape-oriented spread than a tall column. The cover/ball/arc
+  // sizes stay the same as the previous desktop tuning — only the
+  // overall footprint changes shape.
   const N = songs.length;
   const REVOLUTIONS = 1.6;
-  const RADIUS = isDesktop ? 240 : 150;
-  const HEIGHT = isDesktop ? 560 : 380;
+  const RADIUS = isDesktop ? 280 : 150;
+  const HEIGHT = isDesktop ? 420 : 380;
   const COVER = isDesktop ? 128 : 88;
   const BALL = isDesktop ? 26 : 18;
   const ARC_HEIGHT = isDesktop ? 60 : 40;
-  const PERSPECTIVE = isDesktop ? 1500 : 1100;
+  // Perspective bumped slightly (1500 → 1600) to keep the front/back
+  // size delta similar now that the z-range is wider (±280 vs ±240).
+  const PERSPECTIVE = isDesktop ? 1600 : 1100;
 
   // ────── Timings ──────
   // 75s per full thread cycle = each cover takes 75s to travel from the
@@ -241,11 +248,11 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   return (
     <div
       ref={containerRef}
-      className="relative flex items-center justify-center py-16 md:py-28"
+      className="relative flex items-center justify-center py-16 md:py-20"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
       <motion.div
-        className="relative h-[440px] w-[280px] md:h-[680px] md:w-[600px]"
+        className="relative h-[440px] w-[280px] md:h-[600px] md:w-[720px]"
         style={{
           transformStyle: "preserve-3d",
           rotateX: smoothRotateX,
