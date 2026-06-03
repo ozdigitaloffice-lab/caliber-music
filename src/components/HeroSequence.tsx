@@ -166,7 +166,7 @@ export function HeroSequence({
           // tuning this gradually — start at 1.15 (15% over contain), can
           // bump up to ~1.3-1.5 if they want more fill, or all the way
           // back to 1.0 for the original "fits-with-letterbox" look.
-          const DESKTOP_FIT_SCALE = 1.15;
+          const DESKTOP_FIT_SCALE = 1.4;
 
           if (useContain) {
             if (fA > cA) {
