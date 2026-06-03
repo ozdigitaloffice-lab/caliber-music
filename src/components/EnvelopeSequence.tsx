@@ -149,8 +149,16 @@ export function EnvelopeSequence({
     const computeProgress = () => {
       const rect = section.getBoundingClientRect();
       const isMobile = window.innerWidth < 768;
-      const scrubVh = isMobile ? 150 : 100;
-      const triggerOffsetPx = isMobile ? window.innerHeight * 0.5 : 0;
+      // Trigger offset = how far above the pin point the scrub starts.
+      // Mobile: 50 vh — section needs a long pre-pin runway so it doesn't
+      // feel dead while the canvas is rising into view.
+      // Desktop: 25 vh — milder, so the envelope starts animating just as
+      // it enters the upper third of the viewport instead of waiting for
+      // the sticky to engage at the top. Without this the canvas sat on
+      // its first frame until the user scrolled it all the way up.
+      const scrubVh = isMobile ? 150 : 125;
+      const triggerOffsetPx =
+        window.innerHeight * (isMobile ? 0.5 : 0.25);
       const scrubPx = window.innerHeight * (scrubVh / 100);
       if (scrubPx <= 0) return 0;
       const scrolled = -rect.top + triggerOffsetPx;
