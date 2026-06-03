@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { RevealHeading } from "./RevealHeading";
+import { Reveal3D } from "./Reveal3D";
 
 /**
  * "מי אנחנו" — bio paragraph + slogan quote + band photo.
@@ -24,9 +25,11 @@ export function AboutSection() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 md:grid-cols-[1.2fr_minmax(0,1fr)] md:gap-16 md:px-8">
         {/* Text column */}
         <div>
-          <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
-            מי אנחנו · ABOUT
-          </p>
+          <Reveal3D>
+            <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.4em] text-[var(--color-accent)]">
+              מי אנחנו · ABOUT
+            </p>
+          </Reveal3D>
           <RevealHeading
             as="h2"
             id="about-title"
@@ -35,18 +38,22 @@ export function AboutSection() {
             מי אנחנו
           </RevealHeading>
 
-          <p className="mt-4 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:mt-6 md:text-xl">
-            {BIO}
-          </p>
-
-          <blockquote className="mt-8 border-r-4 border-[var(--color-accent)] pr-5 py-2 md:pr-7">
-            <p
-              className="font-[var(--font-display-he)] text-xl font-bold italic leading-snug text-[var(--color-accent)] md:text-2xl"
-              style={{ textShadow: "0 0 22px rgba(223, 225, 4, 0.18)" }}
-            >
-              &ldquo;{QUOTE}&rdquo;
+          <Reveal3D delay={0.12}>
+            <p className="mt-4 font-[var(--font-body)] text-lg leading-relaxed text-[var(--color-muted-fg)] md:mt-6 md:text-xl">
+              {BIO}
             </p>
-          </blockquote>
+          </Reveal3D>
+
+          <Reveal3D delay={0.24}>
+            <blockquote className="mt-8 border-r-4 border-[var(--color-accent)] pr-5 py-2 md:pr-7">
+              <p
+                className="font-[var(--font-display-he)] text-xl font-bold italic leading-snug text-[var(--color-accent)] md:text-2xl"
+                style={{ textShadow: "0 0 22px rgba(223, 225, 4, 0.18)" }}
+              >
+                &ldquo;{QUOTE}&rdquo;
+              </p>
+            </blockquote>
+          </Reveal3D>
         </div>
 
         {/* Image column */}
