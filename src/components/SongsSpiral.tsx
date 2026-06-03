@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import type { Song } from "@/lib/songs";
 import { PlatformPicker } from "./PlatformPicker";
+import { RevealHeading } from "./RevealHeading";
 
 /**
  * 3D helix of every song's album artwork — section closer placed after the
@@ -358,6 +359,25 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   }, [N, isDesktop]);
 
   return (
+    <div className="relative flex flex-col items-center">
+      {/*
+        Headline above the spiral. Eyebrow is a small accent CTA line,
+        the main heading slides up via RevealHeading on first scroll
+        and re-triggers on subsequent passes (same rhythm as the
+        AboutSection / SongGrid H2s).
+      */}
+      <div className="mx-auto max-w-3xl px-4 pt-12 text-center md:pt-16">
+        <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.4em] text-[var(--color-accent)] md:text-xs">
+          תלחצו לבחירה · TAP TO PLAY
+        </p>
+        <RevealHeading
+          as="h2"
+          className="mt-3 font-[var(--font-display-he)] text-3xl font-black leading-[1.05] md:text-5xl"
+        >
+          הגיע הזמן לשמוע שיר טוב
+        </RevealHeading>
+      </div>
+
     <div
       ref={containerRef}
       className="relative flex items-center justify-center py-16 md:py-20"
@@ -602,6 +622,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
 
       {/* Platform picker for spiral covers (same modal the song grid uses) */}
       <PlatformPicker song={openSong} onClose={() => setOpenSong(null)} />
+    </div>
     </div>
   );
 }
