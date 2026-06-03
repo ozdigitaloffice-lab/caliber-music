@@ -156,9 +156,9 @@ export function EnvelopeSequence({
       // it enters the upper third of the viewport instead of waiting for
       // the sticky to engage at the top. Without this the canvas sat on
       // its first frame until the user scrolled it all the way up.
-      const scrubVh = isMobile ? 150 : 125;
+      const scrubVh = isMobile ? 150 : 135;
       const triggerOffsetPx =
-        window.innerHeight * (isMobile ? 0.5 : 0.25);
+        window.innerHeight * (isMobile ? 0.5 : 0.35);
       const scrubPx = window.innerHeight * (scrubVh / 100);
       if (scrubPx <= 0) return 0;
       const scrolled = -rect.top + triggerOffsetPx;
