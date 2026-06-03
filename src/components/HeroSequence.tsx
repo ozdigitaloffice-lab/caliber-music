@@ -147,7 +147,33 @@ export function HeroSequence({
           const fA = frame.naturalWidth / frame.naturalHeight;
           const cA = w / h;
           let dw, dh, dx, dy;
-          if (fA > cA) {
+
+          // Breakpoint decides fit mode (re-read on every draw so a window
+          // resize across the breakpoint picks up the new mode without a
+          // remount):
+          //   Mobile (< 768px) — cover-fit. Canvas is short (65 vh) and
+          //   roughly portrait; cropping is acceptable.
+          //   Desktop (≥ 768px) — contain-fit. Canvas is full-screen and
+          //   the source is roughly square, so cover-fit was hiding the
+          //   top + bottom of the frame on landscape monitors (user fix:
+          //   "the whole video isn't visible"). Contain shows the entire
+          //   frame, centered, with the canvas bg (--color-bg) acting as
+          //   letterbox on the sides.
+          const useContain = window.innerWidth >= 768;
+
+          if (useContain) {
+            if (fA > cA) {
+              dw = w;
+              dh = w / fA;
+              dx = 0;
+              dy = (h - dh) / 2;
+            } else {
+              dh = h;
+              dw = h * fA;
+              dx = (w - dw) / 2;
+              dy = 0;
+            }
+          } else if (fA > cA) {
             dh = h;
             dw = h * fA;
             dx = (w - dw) / 2;
@@ -158,6 +184,7 @@ export function HeroSequence({
             dx = 0;
             dy = (h - dh) * POSITION_Y_BIAS;
           }
+
           ctx.clearRect(0, 0, w, h);
           ctx.drawImage(frame, dx, dy, dw, dh);
         };
