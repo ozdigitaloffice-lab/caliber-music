@@ -393,12 +393,25 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             decoration.
           */}
           {(() => {
-            // Size is 25% larger than the helix HEIGHT — user asked for a
-            // more prominent microphone. The 9:16 source aspect drives
-            // the width. Mic extends a bit beyond the helix top/bottom
-            // (intentional — reads as "burst" rather than "trapped").
-            const VIDEO_H = Math.round(HEIGHT * 1.25);
+            // Backdrop mode: small, diagonal, pushed behind the helix.
+            //
+            //   • HEIGHT × 0.75 (vs the previous 1.25) — physically
+            //     smaller so it doesn't compete with the covers as a
+            //     foreground subject.
+            //   • rotateZ(18deg) — tilts the whole frame so the
+            //     microphone lies diagonally across the spiral's rows
+            //     instead of sitting bolt upright in the middle.
+            //   • translate3d(0, 0, -200) — pushes the mic 200 px back
+            //     in helix-local space. Combined with the perspective
+            //     (1100 mobile / 1600 desktop) this makes the mic
+            //     appear smaller AND consistently render behind the
+            //     covers, since most covers sit in the (-RADIUS, +RADIUS)
+            //     z-range and the negative offset puts the mic past the
+            //     back wall of the helix. Reads clearly as scenery.
+            const VIDEO_H = Math.round(HEIGHT * 0.75);
             const VIDEO_W = Math.round((VIDEO_H * 9) / 16);
+            const Z_BACK = -200;
+            const DIAGONAL_DEG = 18;
             return (
               <video
                 ref={videoRef}
@@ -408,7 +421,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   height: `${VIDEO_H}px`,
                   marginLeft: `-${VIDEO_W / 2}px`,
                   marginTop: `-${VIDEO_H / 2}px`,
-                  transform: "translate3d(0px, 0px, 0px)",
+                  transform: `translate3d(0px, 0px, ${Z_BACK}px) rotateZ(${DIAGONAL_DEG}deg)`,
                   objectFit: "cover",
                   // No box-shadow / border — the WebM has a real alpha
                   // channel now, so anything we attach to the rectangular
