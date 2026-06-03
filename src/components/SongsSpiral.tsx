@@ -113,6 +113,22 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   // helix stays at full opacity; large enough that the wrap from t≈0 to
   // t≈1 is invisible.
   const FADE = 0.06;
+  // ────── Ball motion ──────
+  // OUTWARD_BULGE: how far the ball pushes away from the helix axis at
+  // mid-hop. The path is built as (angle-lerp, y-lerp + arc-bump,
+  // radius-lerp + sine-bulge-out) rather than the old linear x/y/z lerp.
+  // That keeps the ball on / outside the cylindrical surface of the
+  // helix instead of cutting straight through it, which is what was
+  // causing the "ball disappears behind another cover" issue mid-hop.
+  const OUTWARD_BULGE = isDesktop ? 60 : 35;
+  // Squash & stretch — Disney's first principle. During flight the ball
+  // stretches along the motion vector (vertically here, since the hop
+  // is dominated by the y-arc); on impact it squashes wide and short
+  // and recovers over LANDING_SQUASH_MS. Values are intentionally
+  // moderate — we want "ball with weight" not "rubber".
+  const HOP_STRETCH = 0.15;          // ±15% scale at the apex
+  const LANDING_SQUASH_MS = 180;     // post-impact recovery window
+  const LANDING_SQUASH_AMOUNT = 0.22; // 22% flatten on landing
 
   const r = (n: number) => n.toFixed(3);
 
@@ -211,28 +227,72 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
           // Follow toIdx's current position (it's moving with the screw)
           const pos = positionAt(tForIdx(toIdx, screwT));
           const op = opacityAt(tForIdx(toIdx, screwT));
+          // Landing squash: for the first LANDING_SQUASH_MS of dwell the
+          // ball is recovering from impact — wide/flat — easing back to
+          // its rest scale. After that window, stays at 1.0.
+          let scaleX = 1;
+          let scaleY = 1;
+          if (elapsed < LANDING_SQUASH_MS) {
+            const sq = elapsed / LANDING_SQUASH_MS;
+            const eased = 1 - (1 - sq) * (1 - sq); // easeOut quad
+            scaleY = (1 - LANDING_SQUASH_AMOUNT) + LANDING_SQUASH_AMOUNT * eased;
+            scaleX = (1 + LANDING_SQUASH_AMOUNT) - LANDING_SQUASH_AMOUNT * eased;
+          }
           if (ballRef.current) {
-            ballRef.current.style.transform = `translate3d(${r(pos.x)}px, ${r(pos.y)}px, ${r(pos.z)}px)`;
+            ballRef.current.style.transform = `translate3d(${r(pos.x)}px, ${r(pos.y)}px, ${r(pos.z)}px) scale(${r(scaleX)}, ${r(scaleY)})`;
             ballRef.current.style.opacity = r(op);
           }
         }
       } else {
-        // Hop in flight: lerp source → current target (re-sampled each
-        // frame so the ball still lands on the cover after it drifts).
+        // Hop in flight. Path is built in *cylindrical* helix coordinates
+        // (angle, y, radius) rather than cartesian (x, y, z). That lets
+        // the ball travel ALONG the helix surface from source to target,
+        // and the radial-bulge term during mid-flight pushes it OUTSIDE
+        // the helix surface — so it never plows through the inside of
+        // the helix where other covers sit. Old straight-line lerp was
+        // cutting through cover z-depths and disappearing behind them.
         const progress = Math.min(1, elapsed / HOP_MS);
         const targetNow = positionAt(tForIdx(toIdx, screwT));
-        const lerpX = arcFromPos.x + (targetNow.x - arcFromPos.x) * progress;
-        const lerpY = arcFromPos.y + (targetNow.y - arcFromPos.y) * progress;
-        const lerpZ = arcFromPos.z + (targetNow.z - arcFromPos.z) * progress;
-        // Sine bump in screen-Y for the "up and over" parabolic arc
+
+        // Source angle (snapshot at hop start) + current target angle.
+        // Resolve the short-path direction across the ±π wrap.
+        const angleFromVal = Math.atan2(arcFromPos.z, arcFromPos.x);
+        const angleToVal = Math.atan2(targetNow.z, targetNow.x);
+        let dAngle = angleToVal - angleFromVal;
+        if (dAngle > Math.PI) dAngle -= 2 * Math.PI;
+        if (dAngle < -Math.PI) dAngle += 2 * Math.PI;
+        const angleLerp = angleFromVal + dAngle * progress;
+
+        // Radius lerp + outward sine bulge (peaks at mid-flight)
+        const fromRadius = Math.hypot(arcFromPos.x, arcFromPos.z);
+        const toRadius = Math.hypot(targetNow.x, targetNow.z);
+        const radiusLerp = fromRadius + (toRadius - fromRadius) * progress;
+        const bulge = OUTWARD_BULGE * Math.sin(Math.PI * progress);
+        const radius = radiusLerp + bulge;
+
+        const finalX = Math.cos(angleLerp) * radius;
+        const finalZ = Math.sin(angleLerp) * radius;
+
+        // Y: linear lerp + sine arc bump (negative Y = up in screen space)
+        const yLerp = arcFromPos.y + (targetNow.y - arcFromPos.y) * progress;
         const arcOff = -ARC_HEIGHT * Math.sin(Math.PI * progress);
+        const finalY = yLerp + arcOff;
+
+        // Squash & stretch: vertical elongation at the arc apex, slight
+        // horizontal squeeze to roughly preserve volume. Reads as "ball
+        // tracking the motion vector" — classic Disney principle.
+        const stretchT = HOP_STRETCH * Math.sin(Math.PI * progress);
+        const scaleY = 1 + stretchT;
+        const scaleX = 1 / (1 + stretchT); // approximate volume preserve
+
         // Ball opacity: max of source/target so it stays visible during
         // a wrap-crossing hop.
         const sourceOp = opacityAt(tForIdx(fromIdx, screwT));
         const targetOp = opacityAt(tForIdx(toIdx, screwT));
         const op = Math.max(sourceOp, targetOp);
+
         if (ballRef.current) {
-          ballRef.current.style.transform = `translate3d(${r(lerpX)}px, ${r(lerpY + arcOff)}px, ${r(lerpZ)}px)`;
+          ballRef.current.style.transform = `translate3d(${r(finalX)}px, ${r(finalY)}px, ${r(finalZ)}px) scale(${r(scaleX)}, ${r(scaleY)})`;
           ballRef.current.style.opacity = r(op);
         }
         if (progress >= 1) {
@@ -354,11 +414,24 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
               marginTop: `-${BALL / 2}px`,
               transform: `translate3d(${r(positionAt(0).x)}px, ${r(positionAt(0).y)}px, ${r(positionAt(0).z)}px)`,
               willChange: "transform, opacity",
-              background:
-                "radial-gradient(circle at 32% 28%, #fffce0 0%, #f6f74a 18%, #DFE104 52%, #8b8c00 100%)",
+              // Two-layer background:
+              //   1. Bottom: ambient-occlusion shadow (soft dark wash at the
+              //      bottom of the ball, where a real sphere would have less
+              //      light bounce). Subtle but it sells the curvature.
+              //   2. Top: the sphere itself — six gradient stops between the
+              //      near-white hotspot at (32%, 28%) and a deep olive rim,
+              //      so the falloff reads as smooth shading instead of
+              //      banded color steps.
+              background: [
+                "radial-gradient(ellipse 75% 55% at 50% 100%, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 70%)",
+                "radial-gradient(circle at 32% 28%, #ffffe5 0%, #fcfd7d 10%, #f6f724 26%, #DFE104 50%, #a8a900 78%, #565600 100%)",
+              ].join(", "),
               boxShadow: [
-                "inset -2px -3px 5px rgba(0, 0, 0, 0.45)",
-                "inset 1px 2px 3px rgba(255, 255, 255, 0.25)",
+                // Terminator (curved edge falling into shadow, bottom-right)
+                "inset -2px -3px 6px rgba(0, 0, 0, 0.50)",
+                // Specular raised-bump on the highlight side (top-left)
+                "inset 1.5px 2px 3px rgba(255, 255, 255, 0.30)",
+                // Emissive halo stack
                 "0 0 14px rgba(223, 225, 4, 0.85)",
                 "0 0 32px rgba(223, 225, 4, 0.55)",
                 "0 0 60px rgba(223, 225, 4, 0.25)",
