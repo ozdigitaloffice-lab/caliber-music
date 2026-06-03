@@ -79,14 +79,14 @@ export function CollabContact() {
               <a
                 href={`tel:${phoneTel}`}
                 onClick={handlePhoneClick}
-                aria-label={phoneRevealed ? `התקשרו ${phoneDisplay}` : "לחצו לחשיפת מספר טלפון"}
+                aria-label={phoneRevealed ? `התקשרו ${phoneDisplay}` : "לפרוייקטים חדשים דברו איתנו"}
                 className="group inline-flex items-center gap-3 border-2 border-[var(--color-accent)] bg-[var(--color-accent)] px-7 py-4 font-bold text-[var(--color-accent-fg)] transition-transform duration-150 hover:scale-[1.02]"
               >
                 <Phone className="h-5 w-5" />
                 <span className="font-[var(--font-display-he)] text-base md:text-lg">
                   {phoneRevealed
                     ? `התקשרו לשיתופי פעולה — ${phoneDisplay}`
-                    : "לחצו לחשיפת מספר הטלפון"}
+                    : "לפרוייקטים חדשים דברו איתנו"}
                 </span>
               </a>
               <a
