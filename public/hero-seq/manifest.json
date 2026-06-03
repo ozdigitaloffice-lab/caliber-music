@@ -1,8 +1,8 @@
 {
   "frameCount": 304,
-  "width": 720,
+  "width": 1280,
   "height": 720,
   "fps": 30,
   "filenamePattern": "frame-{n:03d}.webp",
-  "totalBytes": 8321428
+  "totalBytes": 12376054
 }
