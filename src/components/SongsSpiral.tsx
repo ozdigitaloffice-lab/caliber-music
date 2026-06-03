@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
-  animate,
   motion,
-  useMotionValue,
   useScroll,
   useSpring,
   useTransform,
@@ -14,155 +12,207 @@ import type { Song } from "@/lib/songs";
 
 /**
  * 3D helix of every song's album artwork — section closer placed after the
- * stats strip and before the bottom marquee. Each cover sits in real 3D
- * space along a vertical helical path, and the whole helix slowly spins
- * around its Y axis (CSS animation, zero JS cost) while also tilting on
- * X based on scroll position through its section (gives it presence as
- * the user enters / leaves the section).
+ * stats strip and before the bottom marquee.
  *
- * The bouncing-ball pass on top: a glowing yellow sphere walks through the
- * discography in order, hopping from cover to cover in a small parabolic
- * arc. While it's resting on a cover, that cover glows yellow and scales
- * up, and the song's title fades in over the static brand caption below.
- * The ball lives *inside* the spinning container so the helix's CSS spin
- * carries it along — the ball never has to compensate for the rotation,
- * it just animates between the local-space positions we pre-computed for
- * the covers.
+ * The motion is a "screw turning": each cover continuously crawls upward
+ * along the helical path, wraps from the top edge back around to the
+ * bottom, and re-emerges. Because the y position and the rotation around
+ * the Y axis are both derived from a single per-cover `t` value
+ * (`angle = t * REV * 2π`, `y = -H/2 + t * H`), one continuously-advancing
+ * time offset produces both effects in lockstep — the helix appears to
+ * rotate AND translate at exactly the rate of a turning screw.
  *
- * Why album art and not abstract dots: the band has 17 singles with very
- * strong cover art — this is the "career-in-one-frame" punctuation that
- * dots can't deliver.
+ * Bouncing-ball pass on top: a glowing yellow sphere walks the discography
+ * in order, hopping cover-to-cover. Because the covers themselves are
+ * moving, the ball re-samples the target cover's current position every
+ * frame during both dwell and hop — so it lands pixel-perfect even when
+ * the target has drifted under it.
+ *
+ * Edge fade: when a cover's `t` is within FADE of either edge, its opacity
+ * is linearly faded to 0. The wrap from t≈0 to t≈1 happens while the
+ * cover is fully invisible, so the visual is "fades out at top, fades
+ * back in at bottom" rather than a teleport. Ball uses the max of source
+ * and target cover opacity so it never disappears mid-hop.
+ *
+ * Architectural split, per cover:
+ *   - **outer <div>** — owns position (translate3d) and opacity. Set
+ *     imperatively by the rAF loop every frame. No React style for these
+ *     after the initial render-time defaults.
+ *   - **inner <a>** — owns border / box-shadow / scale, driven by React
+ *     state (landedIndex / hoveredIndex). CSS transition makes them
+ *     animate smoothly. React re-renders never touch the outer transform
+ *     so there's no flash when state changes.
  *
  * Hydration: all transform numbers go through `.toFixed(3)` so the SSR
- * stringification matches what React produces on the client. Without
- * that, framer-motion's full-precision floats produced a hydration
- * mismatch on every dot/card.
+ * stringification matches what React produces on the client.
  */
 export function SongsSpiral({ songs }: { songs: Song[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const coverRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const ballRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress through the spiral's section
+  // Scroll-driven X-tilt and scale (unchanged from before)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
-
-  // Tilt forward as it enters (−30°), flat at centre (0°), tilt back leaving (+30°)
   const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [-30, 0, 30]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 1, 0.85]);
-  // Spring-smooth so wheel jumps don't judder the helix
+  const containerScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 1, 0.85]);
   const smoothRotateX = useSpring(rotateX, { stiffness: 60, damping: 22 });
-  const smoothScale = useSpring(scale, { stiffness: 60, damping: 22 });
+  const smoothScale = useSpring(containerScale, { stiffness: 60, damping: 22 });
 
-  // ────── Helix geometry ──────
+  // ────── Geometry ──────
   const N = songs.length;
-  const REVOLUTIONS = 1.6; // 1.6 turns spread across the 17 covers
-  const RADIUS = 150;      // px (shared mobile + desktop)
-  const HEIGHT = 380;      // total vertical span in px
-  const COVER = 88;        // cover edge length
-  const BALL = 18;         // ball diameter
-  const ARC_HEIGHT = 40;   // peak rise (in -Y) at midpoint of each hop
-  const HOP_MS = 700;      // arc duration per hop
-  const DWELL_MS = 600;    // pause on each cover
+  const REVOLUTIONS = 1.6;
+  const RADIUS = 150;
+  const HEIGHT = 380;
+  const COVER = 88;
+  const BALL = 18;
+  const ARC_HEIGHT = 40;
 
-  // Round helper: matches SSR/CSR float→string stringification, so React
-  // doesn't flag a hydration mismatch on the inline transforms.
+  // ────── Timings ──────
+  // 75s per full thread cycle = each cover takes 75s to travel from the
+  // bottom edge of the helix back around to the bottom edge again. At
+  // REVOLUTIONS=1.6 that's a rotation period of 75/1.6 ≈ 47s per full
+  // turn around Y — slightly slower than the previous CSS spin (40s),
+  // which keeps the helix from feeling rushed now that covers are also
+  // translating vertically.
+  const SCREW_PERIOD_MS = 75000;
+  const HOP_MS = 700;
+  const DWELL_MS = 700;
+  // Edge fade: 6% of the t-range on each end. Keep small so most of the
+  // helix stays at full opacity; large enough that the wrap from t≈0 to
+  // t≈1 is invisible.
+  const FADE = 0.06;
+
   const r = (n: number) => n.toFixed(3);
 
-  // Pre-compute each cover's local-space 3D position once. The ball reuses
-  // these same positions as its hop targets, so it always lands exactly on
-  // the rendered cover (no drift).
-  const positions = useMemo(() => {
-    return songs.map((_, i) => {
-      const t = N === 1 ? 0.5 : i / (N - 1);
-      const angle = t * REVOLUTIONS * Math.PI * 2;
-      return {
-        x: Math.cos(angle) * RADIUS,
-        y: -HEIGHT / 2 + t * HEIGHT,
-        z: Math.sin(angle) * RADIUS,
-      };
-    });
-  }, [songs, N]);
+  // Position on the helix at any t ∈ [0,1].
+  const positionAt = (t: number) => {
+    const angle = t * REVOLUTIONS * Math.PI * 2;
+    return {
+      x: Math.cos(angle) * RADIUS,
+      y: -HEIGHT / 2 + t * HEIGHT,
+      z: Math.sin(angle) * RADIUS,
+    };
+  };
 
-  // ────── Bouncing ball state ──────
+  // Opacity at any t — linear fade in the FADE band at each edge.
+  const opacityAt = (t: number) => {
+    if (t < FADE) return t / FADE;
+    if (t > 1 - FADE) return (1 - t) / FADE;
+    return 1;
+  };
+
+  // Each cover's current t given the screw offset. Subtracting screwT
+  // (rather than adding) makes the covers travel UPWARD as time advances
+  // — matches the requested "bottom → top" direction.
+  const tForIdx = (i: number, screwT: number) => {
+    if (N <= 1) return 0.5;
+    return ((i / (N - 1)) - screwT + 1) % 1;
+  };
+
+  // ────── React state for visual effects (border / shadow / scale) ──────
   // landedIndex: which cover the ball is currently resting on (-1 = in flight)
-  // hoveredIndex: which cover the user is hovering / focused on (-1 = none).
-  //   A cover lights up (yellow border, scale-up, halo) when EITHER the ball
-  //   has landed on it OR the user is pointing at it — so manual hover gets
-  //   the same affordance as the automated tour without doubling the style
-  //   declarations.
+  // hoveredIndex: which cover the user is pointing at / focused on (-1 = none)
+  // A cover lights up if EITHER is true.
   const [landedIndex, setLandedIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
-  const ballX = useMotionValue(positions[0]?.x ?? 0);
-  const ballY = useMotionValue(positions[0]?.y ?? 0);
-  const ballZ = useMotionValue(positions[0]?.z ?? 0);
+  // Mirror hoveredIndex to a ref so the rAF loop can read it without
+  // having to re-create the loop on every hover change.
+  const hoveredRef = useRef(-1);
+  useEffect(() => {
+    hoveredRef.current = hoveredIndex;
+  }, [hoveredIndex]);
 
+  // ────── The render loop ──────
   useEffect(() => {
     if (N === 0) return;
-    let cancelled = false;
-    let timeoutId: number | undefined;
-    let i = 0;
+    let rafId = 0;
+    let lastFrame = performance.now();
+    let lastBallChange = lastFrame;
+    let screwT = 0;
+    let stage: "dwell" | "hop" = "dwell";
+    let fromIdx = 0;
+    let toIdx = 0;
+    let arcFromPos = positionAt(tForIdx(0, 0));
 
-    const wait = (ms: number) =>
-      new Promise<void>((res) => {
-        timeoutId = window.setTimeout(res, ms);
-      });
+    const tick = (t: number) => {
+      // Clamp dt so backgrounded tabs don't burst-advance the screw
+      const dt = Math.min(50, t - lastFrame);
+      lastFrame = t;
 
-    const hop = async () => {
-      while (!cancelled) {
-        const next = (i + 1) % N;
-        const from = positions[i];
-        const to = positions[next];
-        // Parabolic arc: rise (-Y in screen space) at the midpoint of the
-        // hop, then fall onto the target. The XZ path is a straight lerp;
-        // only Y carries the bump. Keeping the arc in screen-Y rather
-        // than in radial space means the hop reads as "up and over" from
-        // every viewing angle of the spinning helix.
-        const midY = (from.y + to.y) / 2 - ARC_HEIGHT;
-
-        setLandedIndex(-1); // in flight — no cover should glow
-
-        await Promise.all([
-          animate(ballX, to.x, { duration: HOP_MS / 1000, ease: "easeInOut" }),
-          animate(ballY, [from.y, midY, to.y], {
-            duration: HOP_MS / 1000,
-            times: [0, 0.5, 1],
-            ease: "easeInOut",
-          }),
-          animate(ballZ, to.z, { duration: HOP_MS / 1000, ease: "easeInOut" }),
-        ]);
-
-        if (cancelled) return;
-        i = next;
-        setLandedIndex(next);
-
-        await wait(DWELL_MS);
+      // Pause the screw motion while the user is hovering, so they have
+      // time to read the title and click without chasing a moving target.
+      if (hoveredRef.current === -1) {
+        screwT = (screwT + dt / SCREW_PERIOD_MS) % 1;
       }
+
+      // Position + opacity for every cover
+      for (let i = 0; i < N; i++) {
+        const el = coverRefs.current[i];
+        if (!el) continue;
+        const tEff = tForIdx(i, screwT);
+        const pos = positionAt(tEff);
+        const op = opacityAt(tEff);
+        el.style.transform = `translate3d(${r(pos.x)}px, ${r(pos.y)}px, ${r(pos.z)}px)`;
+        el.style.opacity = r(op);
+      }
+
+      // Ball state machine
+      const elapsed = t - lastBallChange;
+
+      if (stage === "dwell") {
+        if (elapsed >= DWELL_MS) {
+          // Transition: dwell → hop
+          stage = "hop";
+          lastBallChange = t;
+          fromIdx = toIdx;
+          toIdx = (toIdx + 1) % N;
+          arcFromPos = positionAt(tForIdx(fromIdx, screwT));
+          setLandedIndex(-1);
+        } else {
+          // Follow toIdx's current position (it's moving with the screw)
+          const pos = positionAt(tForIdx(toIdx, screwT));
+          const op = opacityAt(tForIdx(toIdx, screwT));
+          if (ballRef.current) {
+            ballRef.current.style.transform = `translate3d(${r(pos.x)}px, ${r(pos.y)}px, ${r(pos.z)}px)`;
+            ballRef.current.style.opacity = r(op);
+          }
+        }
+      } else {
+        // Hop in flight: lerp source → current target (re-sampled each
+        // frame so the ball still lands on the cover after it drifts).
+        const progress = Math.min(1, elapsed / HOP_MS);
+        const targetNow = positionAt(tForIdx(toIdx, screwT));
+        const lerpX = arcFromPos.x + (targetNow.x - arcFromPos.x) * progress;
+        const lerpY = arcFromPos.y + (targetNow.y - arcFromPos.y) * progress;
+        const lerpZ = arcFromPos.z + (targetNow.z - arcFromPos.z) * progress;
+        // Sine bump in screen-Y for the "up and over" parabolic arc
+        const arcOff = -ARC_HEIGHT * Math.sin(Math.PI * progress);
+        // Ball opacity: max of source/target so it stays visible during
+        // a wrap-crossing hop.
+        const sourceOp = opacityAt(tForIdx(fromIdx, screwT));
+        const targetOp = opacityAt(tForIdx(toIdx, screwT));
+        const op = Math.max(sourceOp, targetOp);
+        if (ballRef.current) {
+          ballRef.current.style.transform = `translate3d(${r(lerpX)}px, ${r(lerpY + arcOff)}px, ${r(lerpZ)}px)`;
+          ballRef.current.style.opacity = r(op);
+        }
+        if (progress >= 1) {
+          stage = "dwell";
+          lastBallChange = t;
+          setLandedIndex(toIdx);
+        }
+      }
+
+      rafId = requestAnimationFrame(tick);
     };
 
-    hop();
-
-    return () => {
-      cancelled = true;
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-      // Snap the motion values to a stable resting position to avoid
-      // a partially-animated state lingering on the next mount.
-      ballX.stop();
-      ballY.stop();
-      ballZ.stop();
-    };
-    // positions is memoised by [songs, N]; safe to depend on.
-  }, [N, positions, ballX, ballY, ballZ]);
-
-  // Compose the ball's translate3d string from the three motion values,
-  // .toFixed(3) for hydration stability.
-  const ballTransform = useTransform(
-    [ballX, ballY, ballZ],
-    ([x, y, z]) =>
-      `translate3d(${(x as number).toFixed(3)}px, ${(y as number).toFixed(
-        3,
-      )}px, ${(z as number).toFixed(3)}px)`,
-  );
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [N]);
 
   return (
     <div
@@ -178,96 +228,85 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
           scale: smoothScale,
         }}
       >
-        {/* Always-on slow Y-axis spin (CSS, no JS state).
-            Covers AND the bouncing ball both live inside this rotating
-            container, so the CSS spin carries them together — no
-            counter-rotation math needed. */}
         <div
-          className="absolute inset-0 animate-[spiral-spin_40s_linear_infinite]"
+          className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
           {songs.map((song, i) => {
-            const { x, y, z } = positions[i];
-            // "Lit" if the ball landed here OR the user is pointing here.
-            // A hovered cover gets a touch more lift (1.18 vs 1.15) so the
-            // user feels the difference between "the ball did it for me"
-            // and "I'm directly engaging with this one."
+            // Initial render uses screwT=0 → same positions as the old
+            // static helix. The rAF loop takes over from frame 1, so a
+            // moment-zero flash, if any, is just the legacy layout.
+            const initT = N <= 1 ? 0.5 : i / (N - 1);
+            const initPos = positionAt(initT);
+            const initOp = opacityAt(initT);
             const isLanded = i === landedIndex;
             const isHovered = i === hoveredIndex;
             const isLit = isLanded || isHovered;
             const scaleAmount = isHovered ? 1.18 : isLanded ? 1.15 : 1;
 
             return (
-              <a
+              <div
+                ref={(el) => {
+                  coverRefs.current[i] = el;
+                }}
                 key={song.title}
-                href={song.spotify.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={`${song.title} ב-Spotify`}
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() =>
-                  setHoveredIndex((h) => (h === i ? -1 : h))
-                }
-                onFocus={() => setHoveredIndex(i)}
-                onBlur={() =>
-                  setHoveredIndex((h) => (h === i ? -1 : h))
-                }
-                className="absolute left-1/2 top-1/2 block overflow-hidden border-2 transition-[border-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                className="absolute left-1/2 top-1/2"
                 style={{
                   width: `${COVER}px`,
                   height: `${COVER}px`,
                   marginLeft: `-${COVER / 2}px`,
                   marginTop: `-${COVER / 2}px`,
-                  transform: `translate3d(${r(x)}px, ${r(y)}px, ${r(
-                    z,
-                  )}px) scale(${scaleAmount})`,
-                  borderColor: isLit
-                    ? "var(--color-accent)"
-                    : "var(--color-border-strong)",
-                  boxShadow: isLit
-                    ? "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 36px rgba(223, 225, 4, 0.75)"
-                    : "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(223, 225, 4, 0.15)",
+                  transform: `translate3d(${r(initPos.x)}px, ${r(initPos.y)}px, ${r(initPos.z)}px)`,
+                  opacity: r(initOp),
+                  willChange: "transform, opacity",
+                  transformStyle: "preserve-3d",
                 }}
               >
-                {/* Plain <img> so we don't pay next/image overhead for a
-                    decorative element; lazy-loaded so it doesn't compete
-                    with above-the-fold album art. */}
-                <img
-                  src={song.artwork}
-                  alt={song.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover"
-                />
-              </a>
+                <a
+                  href={song.spotify.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`${song.title} ב-Spotify`}
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onMouseLeave={() =>
+                    setHoveredIndex((h) => (h === i ? -1 : h))
+                  }
+                  onFocus={() => setHoveredIndex(i)}
+                  onBlur={() =>
+                    setHoveredIndex((h) => (h === i ? -1 : h))
+                  }
+                  className="block h-full w-full overflow-hidden border-2 transition-[border-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                  style={{
+                    borderColor: isLit
+                      ? "var(--color-accent)"
+                      : "var(--color-border-strong)",
+                    boxShadow: isLit
+                      ? "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 36px rgba(223, 225, 4, 0.75)"
+                      : "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(223, 225, 4, 0.15)",
+                    transform: `scale(${scaleAmount})`,
+                  }}
+                >
+                  <img
+                    src={song.artwork}
+                    alt={song.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover"
+                  />
+                </a>
+              </div>
             );
           })}
 
           {/*
-            The bouncing ball — built to read as a 3D sphere, not a flat
-            disc:
-
-              1. Radial gradient background simulates a light source from
-                 the upper-left. The hot-spot is near-white (#fffce0) at
-                 ~30% radius, transitions through the brand accent yellow
-                 in the mid-band, and falls off to a dimmed olive at the
-                 rim (~#8b8c00). This is the single biggest contributor to
-                 the spherical illusion — without it, a solid-fill circle
-                 always looks like a 2D coin.
-
-              2. Inset box-shadow on the bottom-right adds a terminator —
-                 the curved edge falling into shadow opposite the light
-                 source — which sells the curvature even when the ball is
-                 small and the gradient is hard to read on its own.
-
-              3. Outer box-shadow stack (14 / 32 / 60 px) provides the
-                 emissive halo so the ball still reads as "lit" against
-                 dark covers and casts a soft glow on whatever it lands on.
-
-            Sits inside the spinning container so the helix rotation
-            carries it along automatically.
+            Bouncing 3D ball. Built to read as a sphere:
+              - radial-gradient hotspot at (32%, 28%) suggests a light source
+              - inset bottom-right shadow gives the terminator (curved edge)
+              - inset top-left highlight makes the bright spot read as raised
+              - 14/32/60 px outer halo for emissive glow + cast onto covers
           */}
-          <motion.div
+          <div
+            ref={ballRef}
             aria-hidden
             className="pointer-events-none absolute left-1/2 top-1/2 rounded-full"
             style={{
@@ -275,16 +314,13 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
               height: `${BALL}px`,
               marginLeft: `-${BALL / 2}px`,
               marginTop: `-${BALL / 2}px`,
-              transform: ballTransform,
+              transform: `translate3d(${r(positionAt(0).x)}px, ${r(positionAt(0).y)}px, ${r(positionAt(0).z)}px)`,
+              willChange: "transform, opacity",
               background:
                 "radial-gradient(circle at 32% 28%, #fffce0 0%, #f6f74a 18%, #DFE104 52%, #8b8c00 100%)",
               boxShadow: [
-                // 3D shading: dark rim opposite the highlight
                 "inset -2px -3px 5px rgba(0, 0, 0, 0.45)",
-                // and a soft inner shadow on the highlight side too, so the
-                // bright spot reads as raised rather than painted on
                 "inset 1px 2px 3px rgba(255, 255, 255, 0.25)",
-                // Emissive halo
                 "0 0 14px rgba(223, 225, 4, 0.85)",
                 "0 0 32px rgba(223, 225, 4, 0.55)",
                 "0 0 60px rgba(223, 225, 4, 0.25)",
@@ -294,10 +330,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
         </div>
       </motion.div>
 
-      {/* Bottom caption strip: dynamic current-song title fades over the
-          static brand label so the user gets both context and live state.
-          Hover wins over auto-tour — when the user is pointing at a
-          cover, show that title; otherwise show the ball's landed cover. */}
+      {/* Bottom caption — prefers hovered title, falls back to ball's landed */}
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-1 md:bottom-6">
         <div className="h-5 md:h-6">
           <AnimatePresence mode="wait">
