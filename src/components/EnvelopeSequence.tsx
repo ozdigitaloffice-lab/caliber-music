@@ -260,7 +260,7 @@ export function EnvelopeSequence({
   return (
     <section
       ref={sectionRef}
-      className="relative h-[270vh] w-full"
+      className="relative h-[270vh] w-full md:h-[220vh]"
       aria-label="קליפ מעבר"
     >
       {/*
