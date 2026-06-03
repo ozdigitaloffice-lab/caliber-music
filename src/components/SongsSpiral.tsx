@@ -393,24 +393,21 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             decoration.
           */}
           {(() => {
-            // Backdrop mode: small, diagonal, pushed behind the helix.
+            // Part-of-the-spiral mode: small + diagonal, but sitting ON
+            // the central axis (z=0) so it lives INSIDE the helix, not
+            // behind it as scenery. The covers naturally orbit around
+            // it — some in front (covers at +z), some behind (covers at
+            // -z) — which is the composition the user wants.
             //
-            //   • HEIGHT × 0.75 (vs the previous 1.25) — physically
-            //     smaller so it doesn't compete with the covers as a
-            //     foreground subject.
-            //   • rotateZ(18deg) — tilts the whole frame so the
-            //     microphone lies diagonally across the spiral's rows
-            //     instead of sitting bolt upright in the middle.
-            //   • translate3d(0, 0, -200) — pushes the mic 200 px back
-            //     in helix-local space. Combined with the perspective
-            //     (1100 mobile / 1600 desktop) this makes the mic
-            //     appear smaller AND consistently render behind the
-            //     covers, since most covers sit in the (-RADIUS, +RADIUS)
-            //     z-range and the negative offset puts the mic past the
-            //     back wall of the helix. Reads clearly as scenery.
+            //   • HEIGHT × 0.75 (vs the original 1.25) — smaller so
+            //     when covers pass in front they don't visually engulf
+            //     the mic.
+            //   • rotateZ(18deg) — diagonal across the rows of the
+            //     helix instead of bolt-upright.
+            //   • translate3d(0, 0, 0) — on the helix axis. Part of
+            //     the structure, not a backdrop.
             const VIDEO_H = Math.round(HEIGHT * 0.75);
             const VIDEO_W = Math.round((VIDEO_H * 9) / 16);
-            const Z_BACK = -200;
             const DIAGONAL_DEG = 18;
             return (
               <video
@@ -421,7 +418,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   height: `${VIDEO_H}px`,
                   marginLeft: `-${VIDEO_W / 2}px`,
                   marginTop: `-${VIDEO_H / 2}px`,
-                  transform: `translate3d(0px, 0px, ${Z_BACK}px) rotateZ(${DIAGONAL_DEG}deg)`,
+                  transform: `translate3d(0px, 0px, 0px) rotateZ(${DIAGONAL_DEG}deg)`,
                   objectFit: "cover",
                   // No box-shadow / border — the WebM has a real alpha
                   // channel now, so anything we attach to the rectangular
