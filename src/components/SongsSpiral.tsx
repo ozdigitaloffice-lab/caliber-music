@@ -615,7 +615,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             })()}
           </AnimatePresence>
         </div>
-        <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.5em] text-[var(--color-muted-fg)] md:text-xs">
+        <span className="whitespace-nowrap font-[var(--font-mono)] text-[10px] uppercase tracking-[0.25em] text-[var(--color-muted-fg)] md:text-xs md:tracking-[0.5em]">
           · CALIBER FAMILY · DISCOGRAPHY ·
         </span>
       </div>
