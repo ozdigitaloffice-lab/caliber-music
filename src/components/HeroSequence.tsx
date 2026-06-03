@@ -160,19 +160,24 @@ export function HeroSequence({
           //   frame, centered, with the canvas bg (--color-bg) acting as
           //   letterbox on the sides.
           const useContain = window.innerWidth >= 768;
+          // Multiplier applied on top of contain-fit on desktop. 1.0 is
+          // pure contain (no cropping, max letterbox). Higher = larger
+          // image with progressively more of the edges cropped. User is
+          // tuning this gradually — start at 1.15 (15% over contain), can
+          // bump up to ~1.3-1.5 if they want more fill, or all the way
+          // back to 1.0 for the original "fits-with-letterbox" look.
+          const DESKTOP_FIT_SCALE = 1.15;
 
           if (useContain) {
             if (fA > cA) {
-              dw = w;
-              dh = w / fA;
-              dx = 0;
-              dy = (h - dh) / 2;
+              dw = w * DESKTOP_FIT_SCALE;
+              dh = (w / fA) * DESKTOP_FIT_SCALE;
             } else {
-              dh = h;
-              dw = h * fA;
-              dx = (w - dw) / 2;
-              dy = 0;
+              dh = h * DESKTOP_FIT_SCALE;
+              dw = (h * fA) * DESKTOP_FIT_SCALE;
             }
+            dx = (w - dw) / 2;
+            dy = (h - dh) / 2;
           } else if (fA > cA) {
             dh = h;
             dw = h * fA;
