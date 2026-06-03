@@ -51,6 +51,13 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const coverRefs = useRef<(HTMLDivElement | null)[]>([]);
   const ballRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Defer loading the centre microphone video until the spiral section is
+  // approaching the viewport. The poster (~36 KB) renders immediately;
+  // the actual 2.4 MB MP4 is only fetched once the user is about to see
+  // it. Set via Intersection Observer below. Once true, stays true.
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
   // Scroll-driven X-tilt and scale (unchanged from before)
   const { scrollYProgress } = useScroll({
@@ -176,6 +183,43 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   useEffect(() => {
     hoveredRef.current = hoveredIndex;
   }, [hoveredIndex]);
+
+  // ────── Lazy-load the centre video ──────
+  // Intersection Observer on the spiral's container. When the section
+  // crosses within 200px of the viewport (rootMargin), we flip
+  // shouldLoadVideo to true once; the <video> tag's <source> child is
+  // conditionally rendered on that flag, so the browser only fetches
+  // the MP4 at that point. Disconnect immediately after firing.
+  useEffect(() => {
+    if (shouldLoadVideo) return;
+    const node = containerRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [shouldLoadVideo]);
+
+  // After the source has been swapped in, the browser doesn't pick up the
+  // newly-added <source> child automatically — we need to nudge it with
+  // .load() and then explicitly .play() since the initial autoplay
+  // attempt already failed (no source was there to play).
+  useEffect(() => {
+    if (!shouldLoadVideo) return;
+    const v = videoRef.current;
+    if (!v) return;
+    v.load();
+    // Catch the autoplay-rejected promise so it doesn't show in the
+    // console as an unhandled rejection on browsers that block it.
+    void v.play().catch(() => {});
+  }, [shouldLoadVideo]);
 
   // ────── The render loop ──────
   useEffect(() => {
@@ -331,6 +375,55 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
+          {/*
+            Microphone video at the centre of the helix axis. Sits at
+            translate3d(0,0,0) in helix-local space, so:
+              • covers at +z (front of helix) render IN FRONT of it
+              • covers at −z (back) render BEHIND it
+              • covers at extreme x  pass it on the sides
+            That's the "covers orbit the microphone" composition.
+
+            Lives inside the same preserve-3d container as the covers
+            (so the scroll-driven rotateX + scale on the outer
+            motion.div applies to it too — the video tilts with the
+            helix as the user scrolls through the section).
+
+            pointer-events-none so it never blocks a click on a cover
+            that visually overlaps it. aria-hidden because it's pure
+            decoration.
+          */}
+          {(() => {
+            const VIDEO_H = HEIGHT;
+            const VIDEO_W = Math.round(VIDEO_H * 9 / 16);
+            return (
+              <video
+                ref={videoRef}
+                className="pointer-events-none absolute left-1/2 top-1/2 select-none"
+                style={{
+                  width: `${VIDEO_W}px`,
+                  height: `${VIDEO_H}px`,
+                  marginLeft: `-${VIDEO_W / 2}px`,
+                  marginTop: `-${VIDEO_H / 2}px`,
+                  transform: "translate3d(0px, 0px, 0px)",
+                  objectFit: "cover",
+                  boxShadow:
+                    "0 0 50px rgba(223, 225, 4, 0.20), 0 30px 80px rgba(0, 0, 0, 0.7)",
+                }}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="none"
+                poster="/mic-rotating-poster.jpg"
+                aria-hidden
+              >
+                {shouldLoadVideo && (
+                  <source src="/mic-rotating.mp4" type="video/mp4" />
+                )}
+              </video>
+            );
+          })()}
+
           {songs.map((song, i) => {
             // Initial render uses screwT=0 → same positions as the old
             // static helix. The rAF loop takes over from frame 1, so a
