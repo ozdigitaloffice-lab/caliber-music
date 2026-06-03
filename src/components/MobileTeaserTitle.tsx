@@ -75,15 +75,36 @@ export function MobileTeaserTitle({
       ? 2 * progress * progress
       : -1 + (4 - 2 * progress) * progress;
 
-  // Interpolate from faded slate (#71717A @ 0.4) → full white (#FAFAFA @ 1).
+  // Two-stop color ramp so the title "ignites" into brand accent yellow at
+  // the end (matches the accent-coloured eyebrow + quote in AboutSection).
+  // A direct gray→yellow lerp passes through a muddy olive in the middle;
+  // routing through white at the 60% mark keeps each transition clean:
+  //
+  //   eased 0.00  →  rgb(113, 113, 122)  faded slate
+  //   eased 0.60  →  rgb(250, 250, 250)  full white
+  //   eased 1.00  →  rgb(223, 225, 4)    accent yellow #DFE104
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
   const opacity = lerp(0.4, 1, eased);
-  const r = Math.round(lerp(0x71, 0xfa, eased));
-  const g = Math.round(lerp(0x71, 0xfa, eased));
-  const b = Math.round(lerp(0x7a, 0xfa, eased));
+
+  let r: number, g: number, b: number;
+  if (eased <= 0.6) {
+    const t = eased / 0.6;
+    r = Math.round(lerp(0x71, 0xfa, t));
+    g = Math.round(lerp(0x71, 0xfa, t));
+    b = Math.round(lerp(0x7a, 0xfa, t));
+  } else {
+    const t = (eased - 0.6) / 0.4;
+    r = Math.round(lerp(0xfa, 0xdf, t));
+    g = Math.round(lerp(0xfa, 0xe1, t));
+    b = Math.round(lerp(0xfa, 0x04, t));
+  }
   const color = `rgb(${r}, ${g}, ${b})`;
-  const glowPx = lerp(0, 22, eased);
-  const glowAlpha = 0.6 * eased;
+
+  // Glow grows alongside; pushed harder than before (32px @ 0.85 vs 22px @
+  // 0.6) so the end state has the same lit-up energy as the AboutSection
+  // accent typography.
+  const glowPx = lerp(0, 32, eased);
+  const glowAlpha = 0.85 * eased;
   // .toFixed(3) on the dynamic numbers so SSR and client agree to the
   // same string for hydration — matches the pattern used in SongsSpiral.
   const textShadow = `0 0 ${glowPx.toFixed(3)}px rgba(223, 225, 4, ${glowAlpha.toFixed(
