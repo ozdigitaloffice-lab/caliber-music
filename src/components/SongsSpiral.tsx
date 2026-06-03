@@ -9,6 +9,7 @@ import {
   useTransform,
 } from "framer-motion";
 import type { Song } from "@/lib/songs";
+import { PlatformPicker } from "./PlatformPicker";
 
 /**
  * 3D helix of every song's album artwork — section closer placed after the
@@ -146,6 +147,13 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   // A cover lights up if EITHER is true.
   const [landedIndex, setLandedIndex] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  // openSong drives the PlatformPicker dialog. Click on any spiral cover
+  // opens it so the user gets the same Spotify / Apple Music / YouTube
+  // choice as the main song grid — important because 6 of the 17 tracks
+  // have a Spotify search-fallback URL rather than a direct track link,
+  // and PlatformPicker labels that case ("פתיחת חיפוש") so users can
+  // pick Apple Music or YouTube for direct playback instead.
+  const [openSong, setOpenSong] = useState<Song | null>(null);
   // Mirror hoveredIndex to a ref so the rAF loop can read it without
   // having to re-create the loop on every hover change.
   const hoveredRef = useRef(-1);
@@ -293,11 +301,10 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   transformStyle: "preserve-3d",
                 }}
               >
-                <a
-                  href={song.spotify.url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  aria-label={`${song.title} ב-Spotify`}
+                <button
+                  type="button"
+                  onClick={() => setOpenSong(song)}
+                  aria-label={`${song.title} — בחר/י פלטפורמה להשמעה`}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() =>
                     setHoveredIndex((h) => (h === i ? -1 : h))
@@ -306,7 +313,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   onBlur={() =>
                     setHoveredIndex((h) => (h === i ? -1 : h))
                   }
-                  className="block h-full w-full overflow-hidden border-2 transition-[border-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                  className="block h-full w-full cursor-pointer overflow-hidden border-2 bg-transparent p-0 transition-[border-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
                   style={{
                     borderColor: isLit
                       ? "var(--color-accent)"
@@ -324,7 +331,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                     decoding="async"
                     className="h-full w-full object-cover"
                   />
-                </a>
+                </button>
               </div>
             );
           })}
@@ -389,6 +396,9 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
           · CALIBER FAMILY · DISCOGRAPHY ·
         </span>
       </div>
+
+      {/* Platform picker for spiral covers (same modal the song grid uses) */}
+      <PlatformPicker song={openSong} onClose={() => setOpenSong(null)} />
     </div>
   );
 }
