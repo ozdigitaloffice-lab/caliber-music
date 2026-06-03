@@ -90,15 +90,15 @@ export default function Home() {
         </section>
 
         {/*
-          Envelope is pulled UP under the end of the song grid via
-          -mt-[40vh] on mobile / -mt-[20vh] on desktop. The sticky child
-          (opaque canvas) starts pinning earlier in the scroll, so as the
-          user finishes the last row of song cards, the envelope's first
-          frame is already rising up underneath instead of waiting for a
-          fresh scroll. Reads as continuous flow, not "stuck on a wall."
+          Envelope pulled UP slightly under the end of the song grid via
+          -mt-[15vh] mobile / -mt-[8vh] desktop. Just enough overlap to
+          feel continuous (the envelope's first frame peeks up as the
+          last row of songs scrolls past), without the opaque sticky
+          covering the last song cards before the user has read them.
+          Was -mt-[40vh] / -mt-[20vh] but that buried the bottom songs.
         */}
         {envelopeManifest && (
-          <div className="relative -mt-[40vh] md:-mt-[20vh]">
+          <div className="relative -mt-[15vh] md:-mt-[8vh]">
             <EnvelopeSequence
               manifest={envelopeManifest}
               mobileTeaser={
