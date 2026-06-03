@@ -124,19 +124,36 @@ export function EnvelopeSequence({
     let displayedProgress = -1;
     let targetProgress = 0;
     let currentIndex = -1;
-    // The scrub finishes in the first 100vh of pinned scroll. Because the
-    // outer section is h-[270vh] (= 170vh sticky-pinned), the last 70vh
-    // of pinned scroll holds the final frame in view before the next
-    // section takes over.
-    const SCRUB_VH = 100;
+    // Scrub-timing strategy, per breakpoint:
+    //
+    // Desktop (>= 768px) — scrub finishes in the first 100vh of pinned
+    //   scroll. Outer section is h-[270vh] (= 170vh sticky-pinned), so the
+    //   last 70vh of pinned scroll holds the final frame in view before
+    //   the next section takes over.
+    //
+    // Mobile (< 768px) — the canvas only occupies 65% of the viewport
+    //   (the rest is the locked teaser strip), and there's an extra
+    //   ~150ms of "rise time" between the section first appearing at the
+    //   bottom of the viewport and sticky actually pinning. In that
+    //   window the scrub was reporting 0%, so the first frame just sat
+    //   there → felt dead.
+    //   Fix: shift the trigger 50vh earlier so the scrub starts the
+    //   instant the section is half-way up the viewport, and stretch the
+    //   total scrub range to 150vh so the end-of-scrub point lands at the
+    //   same place (≈100vh into pin). Pre-pin contributes 50vh, pin
+    //   contributes the remaining 100vh — same final-frame dwell as
+    //   desktop, no section-height change required.
     const LERP = 0.14;
     const EPS = 0.0008;
 
     const computeProgress = () => {
       const rect = section.getBoundingClientRect();
-      const scrubPx = window.innerHeight * (SCRUB_VH / 100);
+      const isMobile = window.innerWidth < 768;
+      const scrubVh = isMobile ? 150 : 100;
+      const triggerOffsetPx = isMobile ? window.innerHeight * 0.5 : 0;
+      const scrubPx = window.innerHeight * (scrubVh / 100);
       if (scrubPx <= 0) return 0;
-      const scrolled = -rect.top;
+      const scrolled = -rect.top + triggerOffsetPx;
       return Math.max(0, Math.min(1, scrolled / scrubPx));
     };
 
