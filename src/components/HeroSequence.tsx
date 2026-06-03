@@ -309,19 +309,28 @@ export function HeroSequence({
           className="absolute inset-x-0 top-0 h-[65vh] w-full md:h-full"
           aria-hidden
         />
+        <div
+          ref={overlayRef}
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/85 opacity-65"
+        />
+
+        {/*
+          Teaser is rendered AFTER the dimming overlay so it paints on top
+          of it. With explicit z-10 too in case any future ref styling on
+          the overlay changes stacking. Why this matters: the overlay's
+          to-black/85 bottom-stop was darkening the teaser text (turning
+          "כל השירים" muddy at end-of-scrub). The overlay still does its
+          job — dimming the canvas underneath the text for legibility —
+          but no longer washes the text itself.
+        */}
         {mobileTeaser && (
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 flex h-[35vh] flex-col items-end justify-center px-5 pb-8 text-right md:hidden"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-[35vh] flex-col items-end justify-center px-5 pb-8 text-right md:hidden"
             aria-hidden
           >
             {mobileTeaser}
           </div>
         )}
-
-        <div
-          ref={overlayRef}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/85 opacity-65"
-        />
 
         {/*
           Full-page loading overlay — covers the entire site (including Nav,
