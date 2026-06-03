@@ -86,7 +86,13 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
 
   // ────── Bouncing ball state ──────
   // landedIndex: which cover the ball is currently resting on (-1 = in flight)
+  // hoveredIndex: which cover the user is hovering / focused on (-1 = none).
+  //   A cover lights up (yellow border, scale-up, halo) when EITHER the ball
+  //   has landed on it OR the user is pointing at it — so manual hover gets
+  //   the same affordance as the automated tour without doubling the style
+  //   declarations.
   const [landedIndex, setLandedIndex] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(-1);
   const ballX = useMotionValue(positions[0]?.x ?? 0);
   const ballY = useMotionValue(positions[0]?.y ?? 0);
   const ballZ = useMotionValue(positions[0]?.z ?? 0);
@@ -182,7 +188,14 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
         >
           {songs.map((song, i) => {
             const { x, y, z } = positions[i];
+            // "Lit" if the ball landed here OR the user is pointing here.
+            // A hovered cover gets a touch more lift (1.18 vs 1.15) so the
+            // user feels the difference between "the ball did it for me"
+            // and "I'm directly engaging with this one."
             const isLanded = i === landedIndex;
+            const isHovered = i === hoveredIndex;
+            const isLit = isLanded || isHovered;
+            const scaleAmount = isHovered ? 1.18 : isLanded ? 1.15 : 1;
 
             return (
               <a
@@ -191,7 +204,15 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label={`${song.title} ב-Spotify`}
-                className="absolute left-1/2 top-1/2 block overflow-hidden border-2 transition-[border-color,box-shadow,transform] duration-300 hover:border-[var(--color-accent)] focus-visible:border-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() =>
+                  setHoveredIndex((h) => (h === i ? -1 : h))
+                }
+                onFocus={() => setHoveredIndex(i)}
+                onBlur={() =>
+                  setHoveredIndex((h) => (h === i ? -1 : h))
+                }
+                className="absolute left-1/2 top-1/2 block overflow-hidden border-2 transition-[border-color,box-shadow,transform] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
                 style={{
                   width: `${COVER}px`,
                   height: `${COVER}px`,
@@ -199,11 +220,11 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   marginTop: `-${COVER / 2}px`,
                   transform: `translate3d(${r(x)}px, ${r(y)}px, ${r(
                     z,
-                  )}px)${isLanded ? " scale(1.15)" : ""}`,
-                  borderColor: isLanded
+                  )}px) scale(${scaleAmount})`,
+                  borderColor: isLit
                     ? "var(--color-accent)"
                     : "var(--color-border-strong)",
-                  boxShadow: isLanded
+                  boxShadow: isLit
                     ? "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 36px rgba(223, 225, 4, 0.75)"
                     : "0 12px 32px rgba(0, 0, 0, 0.55), 0 0 16px rgba(223, 225, 4, 0.15)",
                 }}
@@ -223,45 +244,81 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
           })}
 
           {/*
-            The bouncing ball. Double-layered shadow: tight inner glow gives
-            it the lit-bulb look; wide outer glow leaves a soft halo on
-            whatever cover it lands on. Sits inside the spinning container
-            so the helix rotation carries it along automatically.
+            The bouncing ball — built to read as a 3D sphere, not a flat
+            disc:
+
+              1. Radial gradient background simulates a light source from
+                 the upper-left. The hot-spot is near-white (#fffce0) at
+                 ~30% radius, transitions through the brand accent yellow
+                 in the mid-band, and falls off to a dimmed olive at the
+                 rim (~#8b8c00). This is the single biggest contributor to
+                 the spherical illusion — without it, a solid-fill circle
+                 always looks like a 2D coin.
+
+              2. Inset box-shadow on the bottom-right adds a terminator —
+                 the curved edge falling into shadow opposite the light
+                 source — which sells the curvature even when the ball is
+                 small and the gradient is hard to read on its own.
+
+              3. Outer box-shadow stack (14 / 32 / 60 px) provides the
+                 emissive halo so the ball still reads as "lit" against
+                 dark covers and casts a soft glow on whatever it lands on.
+
+            Sits inside the spinning container so the helix rotation
+            carries it along automatically.
           */}
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 rounded-full bg-[var(--color-accent)]"
+            className="pointer-events-none absolute left-1/2 top-1/2 rounded-full"
             style={{
               width: `${BALL}px`,
               height: `${BALL}px`,
               marginLeft: `-${BALL / 2}px`,
               marginTop: `-${BALL / 2}px`,
               transform: ballTransform,
-              boxShadow:
-                "0 0 14px rgba(223, 225, 4, 0.85), 0 0 32px rgba(223, 225, 4, 0.55), 0 0 60px rgba(223, 225, 4, 0.25)",
+              background:
+                "radial-gradient(circle at 32% 28%, #fffce0 0%, #f6f74a 18%, #DFE104 52%, #8b8c00 100%)",
+              boxShadow: [
+                // 3D shading: dark rim opposite the highlight
+                "inset -2px -3px 5px rgba(0, 0, 0, 0.45)",
+                // and a soft inner shadow on the highlight side too, so the
+                // bright spot reads as raised rather than painted on
+                "inset 1px 2px 3px rgba(255, 255, 255, 0.25)",
+                // Emissive halo
+                "0 0 14px rgba(223, 225, 4, 0.85)",
+                "0 0 32px rgba(223, 225, 4, 0.55)",
+                "0 0 60px rgba(223, 225, 4, 0.25)",
+              ].join(", "),
             }}
           />
         </div>
       </motion.div>
 
       {/* Bottom caption strip: dynamic current-song title fades over the
-          static brand label so the user gets both context and live state. */}
+          static brand label so the user gets both context and live state.
+          Hover wins over auto-tour — when the user is pointing at a
+          cover, show that title; otherwise show the ball's landed cover. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-1 md:bottom-6">
         <div className="h-5 md:h-6">
           <AnimatePresence mode="wait">
-            {landedIndex >= 0 && (
-              <motion.span
-                key={songs[landedIndex].title}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="block font-[var(--font-display-he)] text-sm font-black text-[var(--color-accent)] md:text-base"
-                style={{ textShadow: "0 0 18px rgba(223, 225, 4, 0.45)" }}
-              >
-                {songs[landedIndex].title}
-              </motion.span>
-            )}
+            {(() => {
+              const captionIndex =
+                hoveredIndex >= 0 ? hoveredIndex : landedIndex;
+              if (captionIndex < 0) return null;
+              return (
+                <motion.span
+                  key={songs[captionIndex].title}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="block font-[var(--font-display-he)] text-sm font-black text-[var(--color-accent)] md:text-base"
+                  style={{ textShadow: "0 0 18px rgba(223, 225, 4, 0.45)" }}
+                >
+                  {songs[captionIndex].title}
+                </motion.span>
+              );
+            })()}
           </AnimatePresence>
         </div>
         <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.5em] text-[var(--color-muted-fg)] md:text-xs">
