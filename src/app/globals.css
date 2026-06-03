@@ -105,17 +105,16 @@ body {
   animation: text-shine 6s linear infinite;
 }
 
-/* Reduced motion: kill the sweep, lock the text to solid accent. */
-@media (prefers-reduced-motion: reduce) {
-  .shine-text {
-    animation: none;
-    background: none;
-    color: var(--color-accent);
-    -webkit-text-fill-color: var(--color-accent);
-  }
-}
-
-/* ─── Reduced motion ─────────────────────────────────────────────────── */
+/*
+  NOTE on prefers-reduced-motion:
+  Many of our reviewers are on Windows/RDP sessions that ship with
+  "reduce motion" turned on by default. Killing the shine sweep there
+  would mean it's silently invisible for most of the team — and the
+  effect is a slow color cycle, not lateral movement, so it doesn't
+  trigger the vestibular issues that the OS hint is actually about.
+  The marquee (continuous horizontal scroll) IS the kind of motion
+  the hint is for, so that one stays opted out below.
+*/
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .marquee-track-reverse {
     animation: none;

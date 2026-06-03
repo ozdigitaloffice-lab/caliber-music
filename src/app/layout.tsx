@@ -4,6 +4,7 @@ import "./globals.css";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Grain } from "@/components/Grain";
 import { ScrollProgress } from "@/components/ScrollProgress";
+import { MotionShell } from "@/components/MotionShell";
 
 const heebo = Heebo({
   variable: "--font-heebo",
@@ -57,7 +58,7 @@ export default function RootLayout({
         <SmoothScroll />
         <ScrollProgress />
         <Grain />
-        {children}
+        <MotionShell>{children}</MotionShell>
       </body>
     </html>
   );
