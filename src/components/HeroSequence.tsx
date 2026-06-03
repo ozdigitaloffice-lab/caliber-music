@@ -148,43 +148,20 @@ export function HeroSequence({
           const cA = w / h;
           let dw, dh, dx, dy;
 
-          // Breakpoint decides fit mode (re-read on every draw so a window
-          // resize across the breakpoint picks up the new mode without a
-          // remount):
-          //   Mobile (< 768px) — cover-fit. Canvas is short (65 vh) and
-          //   roughly portrait; cropping is acceptable.
-          //   Desktop (≥ 768px) — contain-fit. Canvas is full-screen and
-          //   the source is roughly square, so cover-fit was hiding the
-          //   top + bottom of the frame on landscape monitors (user fix:
-          //   "the whole video isn't visible"). Contain shows the entire
-          //   frame, centered, with the canvas bg (--color-bg) acting as
-          //   letterbox on the sides.
-          const useContain = window.innerWidth >= 768;
-          // Multiplier applied on top of contain-fit on desktop. 1.0 is
-          // pure contain (no cropping, max letterbox). Higher = larger
-          // image with progressively more of the edges cropped. User is
-          // tuning this gradually — start at 1.15 (15% over contain), can
-          // bump up to ~1.3-1.5 if they want more fill, or all the way
-          // back to 1.0 for the original "fits-with-letterbox" look.
-          const DESKTOP_FIT_SCALE = 1.6;
-
-          if (useContain) {
-            if (fA > cA) {
-              dw = w * DESKTOP_FIT_SCALE;
-              dh = (w / fA) * DESKTOP_FIT_SCALE;
-            } else {
-              dh = h * DESKTOP_FIT_SCALE;
-              dw = (h * fA) * DESKTOP_FIT_SCALE;
-            }
-            dx = (w - dw) / 2;
-            // Anchor the bottom of the image to the canvas bottom: when
-            // DESKTOP_FIT_SCALE pushes the image taller than the canvas,
-            // ALL the overflow happens off the TOP (cropping the sky /
-            // upper portion), leaving the bottom of the frame intact.
-            // Per user — "don't crop it from below even if it spills
-            // past the frame of the screen."
-            dy = h - dh;
-          } else if (fA > cA) {
+          // Cover-fit on both breakpoints (image always fills the whole
+          // canvas), but the *vertical anchor* differs:
+          //   Mobile — keep POSITION_Y_BIAS (0.35) so the walker's
+          //   upper body stays visible on the short 65 vh canvas.
+          //   Desktop — anchor the BOTTOM of the image (dy = h − dh).
+          //   The frame always fills the full screen like the original
+          //   cover, but ALL the overflow happens off the top — the
+          //   bottom edge of the frame is preserved through the entire
+          //   scrub, and as the sticky unpins and the canvas scrolls
+          //   away the user sees the same bottom-anchored edge transit
+          //   the viewport, giving the "scroll down past it and the
+          //   continuation is at the bottom" feel the user asked for.
+          const isDesktop = window.innerWidth >= 768;
+          if (fA > cA) {
             dh = h;
             dw = h * fA;
             dx = (w - dw) / 2;
@@ -193,7 +170,7 @@ export function HeroSequence({
             dw = w;
             dh = w / fA;
             dx = 0;
-            dy = (h - dh) * POSITION_Y_BIAS;
+            dy = isDesktop ? h - dh : (h - dh) * POSITION_Y_BIAS;
           }
 
           ctx.clearRect(0, 0, w, h);
