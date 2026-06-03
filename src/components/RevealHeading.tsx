@@ -31,10 +31,13 @@ export function RevealHeading({
       <motion.div
         initial={{ y: "115%" }}
         whileInView={{ y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
+        // once: false means the slide-up animation re-triggers each time
+        // the heading scrolls back into view, not just on first sight.
+        // amount: 0.5 prevents flicker — the trigger only fires when 50%
+        // of the heading is visible, so passing the bottom edge during
+        // fast scroll doesn't reset it.
+        viewport={{ once: false, amount: 0.5 }}
         transition={{ duration: 0.95, delay, ease: [0.16, 1, 0.3, 1] }}
-        // Component is rendered via a passed tag for semantic correctness
-        // (sections expect H2, not div). We still wrap in motion.div via render.
       >
         <Tag className={className}>{children}</Tag>
       </motion.div>

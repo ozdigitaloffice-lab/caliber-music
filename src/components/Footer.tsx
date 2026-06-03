@@ -13,7 +13,7 @@ export function Footer({
     <footer className="relative border-t-2 border-[var(--color-border-strong)] bg-[var(--color-bg)] py-12 md:py-16">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 text-center md:px-8">
         <p
-          className="font-[var(--font-display-en)] text-5xl font-bold uppercase tracking-tight text-[var(--color-accent)] md:text-7xl"
+          className="shine-text font-[var(--font-display-en)] text-5xl font-bold uppercase tracking-tight md:text-7xl"
           style={{ letterSpacing: "-0.04em" }}
         >
           CALIBER · FAMILY

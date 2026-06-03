@@ -41,7 +41,7 @@ export function Nav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-8 md:py-4">
         <a
           href="#hero"
-          className="font-[var(--font-display-he)] text-xl font-black leading-none tracking-tight text-[var(--color-accent)] md:text-2xl"
+          className="shine-text font-[var(--font-display-he)] text-xl font-black leading-none tracking-tight md:text-2xl"
           aria-label="משפחת קליבר — לראש הדף"
         >
           משפחת קליבר

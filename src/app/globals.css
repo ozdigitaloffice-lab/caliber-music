@@ -71,6 +71,50 @@ body {
   to   { transform: rotateY(360deg); }
 }
 
+/*
+  Subtle "lightning sweep" across text — a white highlight crosses the
+  glyphs from right to left (matches Hebrew reading direction). Most of
+  the cycle the text is solid accent; the sweep itself happens in the
+  last 40% of the timeline, so each repetition feels intentional, not
+  constant noise.
+
+  Mechanism: a yellow→white→yellow gradient sized 300% of the element,
+  background-clipped to the text, animated by background-position.
+  Because both end-states (bg-pos 0% and 100%) show solid yellow, the
+  loop wraps invisibly.
+*/
+@keyframes text-shine {
+  0%, 60% { background-position: 0% 0; }
+  100%    { background-position: 100% 0; }
+}
+
+.shine-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-accent) 45%,
+    rgba(255, 255, 255, 0.96) 50%,
+    var(--color-accent) 55%,
+    var(--color-accent) 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: text-shine 6s linear infinite;
+}
+
+/* Reduced motion: kill the sweep, lock the text to solid accent. */
+@media (prefers-reduced-motion: reduce) {
+  .shine-text {
+    animation: none;
+    background: none;
+    color: var(--color-accent);
+    -webkit-text-fill-color: var(--color-accent);
+  }
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .marquee-track-reverse {
