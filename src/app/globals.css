@@ -65,6 +65,12 @@ body {
   animation-play-state: paused;
 }
 
+/* Slow Y-axis rotation for the 3D song-section spiral closer. */
+@keyframes spiral-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .marquee-track-reverse {

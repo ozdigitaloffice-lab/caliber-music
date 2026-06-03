@@ -17,25 +17,22 @@ import { SpotifyIcon, AppleMusicIcon, YoutubeIcon } from "./PlatformIcons";
 /**
  * Song tile with three coordinated motion layers:
  *
- *   1. **Burst-from-center entrance** — when the card scrolls into view it
- *      enters via a clip-path that opens from the centre out (`inset(50%)`
- *      → `inset(0%)`), combined with a spring scale from 0.4 → 1.0. Reads
- *      as "expanding from the inside" rather than a basic fade-up.
+ *   1. **Pop-in entrance** — when the card scrolls into view it springs
+ *      from scale 0.55 → 1.0 with a slight overshoot, opacity fades in
+ *      alongside. "From the inside outward" feel from the scale spring;
+ *      no clip-path so the album art is never visually hidden mid-flight.
  *
  *   2. **Scroll-linked parallax** — as the card travels through the
- *      viewport, it translates a few px vertically in the opposite
- *      direction to scroll. Different cards use different magnitudes
- *      (varied by index) so the whole grid feels like an unsynchronised
- *      crowd of independent pieces, not a rigid sheet.
+ *      viewport, it translates a few px vertically. Different cards use
+ *      different magnitudes (varied by index) so the grid feels like an
+ *      unsynchronised crowd, not a rigid sheet.
  *
  *   3. **Existing mouse-tilt + tap** — composed on the inner button via
- *      its own motion values so it doesn't fight with the wrapper's
- *      parallax y transform.
+ *      its own motion values so it doesn't fight the wrapper's parallax.
  *
- * Architecture: outer `<motion.div>` owns the parallax y (so it can use
- * the wrapper's scroll progress without conflicting with the inner
- * button's spring animations); inner `<motion.button>` owns the entrance
- * + tilt + tap. Clean separation, no motion-value collisions.
+ * Architecture: outer `<motion.div>` owns the parallax y; inner
+ * `<motion.button>` owns the entrance + tilt + tap. Separate motion
+ * elements means motion values can't collide.
  */
 export function SongCard({
   song,
@@ -103,32 +100,20 @@ export function SongCard({
         onMouseMove={onMove}
         onMouseLeave={reset}
         onClick={() => onOpen(song)}
-        // Burst-from-centre entrance: clip-path opens from the middle out,
-        // scale springs up from a small starting size.
-        initial={{
-          opacity: 0,
-          scale: 0.4,
-          clipPath: "inset(50% 50% 50% 50% round 8px)",
-        }}
-        whileInView={{
-          opacity: 1,
-          scale: 1,
-          clipPath: "inset(0% 0% 0% 0% round 0px)",
-        }}
+        // Pop-in entrance: scale springs from a tiny size to full with a
+        // touch of overshoot. No clip-path — that was making the album
+        // art occasionally fail to repaint after the animation ended.
+        initial={{ opacity: 0, scale: 0.55 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, amount: 0.15, margin: "0px 0px -10% 0px" }}
         transition={{
-          opacity: { duration: 0.55, delay: entryDelay, ease: "easeOut" },
+          opacity: { duration: 0.5, delay: entryDelay, ease: "easeOut" },
           scale: {
             type: "spring",
-            stiffness: 140,
-            damping: 18,
+            stiffness: 150,
+            damping: 16,
             mass: 0.7,
             delay: entryDelay,
-          },
-          clipPath: {
-            duration: 0.95,
-            delay: entryDelay,
-            ease: [0.16, 1, 0.3, 1],
           },
         }}
         style={{ rotateX: rx, rotateY: ry, transformPerspective: 900 }}
