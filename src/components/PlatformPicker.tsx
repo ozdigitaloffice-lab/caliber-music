@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motion";
 import { X } from "lucide-react";
 import type { Song } from "@/lib/songs";
@@ -36,7 +37,27 @@ export function PlatformPicker({
     };
   }, [song, onClose]);
 
-  return (
+  // Mount-detection so the portal target (document.body) is available.
+  // Server render produces no portal at all; client first render also
+  // skips it on the initial pass and then re-renders once mounted —
+  // keeps hydration clean.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Why a portal:
+  // SongsSpiral wraps its helix in containers with `perspective` and
+  // `transform-style: preserve-3d`. Per CSS, those properties create a
+  // containing block for ANY descendant with `position: fixed` — so a
+  // modal rendered inside SongsSpiral with `fixed inset-0` doesn't span
+  // the viewport, it spans the 3D container (which is much smaller on
+  // mobile). The dialog ended up cramped down to the spiral's footprint.
+  // Mounting the modal into document.body via createPortal escapes that
+  // containing block and `fixed inset-0` once again means "the whole
+  // viewport" — same size whether opened from the song grid or from the
+  // spiral.
+  const dialog = (
     <AnimatePresence>
       {song && (
         <motion.div
@@ -123,6 +144,8 @@ export function PlatformPicker({
       )}
     </AnimatePresence>
   );
+
+  return mounted ? createPortal(dialog, document.body) : null;
 }
 
 /**
