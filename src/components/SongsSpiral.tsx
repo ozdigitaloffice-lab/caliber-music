@@ -410,8 +410,13 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
                   marginTop: `-${VIDEO_H / 2}px`,
                   transform: "translate3d(0px, 0px, 0px)",
                   objectFit: "cover",
-                  boxShadow:
-                    "0 0 50px rgba(223, 225, 4, 0.20), 0 30px 80px rgba(0, 0, 0, 0.7)",
+                  // No box-shadow / border — the WebM has a real alpha
+                  // channel now, so anything we attach to the rectangular
+                  // <video> bounding box (drop-shadow, halo, frame, etc.)
+                  // betrays the rectangular crop and breaks the illusion
+                  // that the mic is floating inside the helix. The mic's
+                  // own gold elements already provide their own light;
+                  // nothing else is needed around the frame.
                 }}
                 autoPlay
                 loop
