@@ -380,7 +380,7 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
 
     <div
       ref={containerRef}
-      className="relative flex items-center justify-center py-16 md:py-20"
+      className="relative flex items-center justify-center pt-2 pb-16 md:pt-4 md:pb-20"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
       <motion.div
