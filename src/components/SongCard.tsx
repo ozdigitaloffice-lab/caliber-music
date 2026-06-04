@@ -78,12 +78,34 @@ export function SongCard({
   // Spring-smooth it so wheel-tick jumps don't read as judder.
   const smoothY = useSpring(parallaxY, { stiffness: 80, damping: 24, mass: 0.4 });
 
-  // (Cylindrical curl effect reverted — caused clicks to stop registering
-  //  on the cards. The combination of perspective on the grid container,
-  //  transform-style: preserve-3d on the card wrapper, and the inner
-  //  button's own transformPerspective for the mouse tilt produced a
-  //  3D-context layering that broke hit-testing in some browsers. Plain
-  //  click-to-open-PlatformPicker now works again.)
+  // ────── Depth-of-field at the viewport edges ──────
+  // Pure 2D recession: cards toward the top / bottom of the viewport
+  // shrink, dim, and blur slightly; cards at the centre are sharp, full
+  // size, full opacity. Symmetric around progress 0.5.
+  //
+  // No rotateX / translateZ / perspective / preserve-3d anywhere — that
+  // was the combination that broke hit-testing on the previous cylinder
+  // attempt. Plain scale + opacity + CSS filter are flat-DOM operations
+  // the browser handles without disturbing the click target.
+  //
+  // Magnitudes (per user — "medium"):
+  //   scale    0.85  at edges  →  1.00  at centre
+  //   opacity  0.55  at edges  →  1.00  at centre
+  //   blur     4 px  at edges  →  0 px  at centre
+  // Springs match the parallax-y spring so all three motions feel like
+  // they're moving with the same physics.
+  const edgeScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 1, 0.85]);
+  const edgeOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.55, 1, 0.55]);
+  const edgeBlurAmount = useTransform(scrollYProgress, (p) => {
+    const distance = Math.abs(p - 0.5) * 2; // 0 centred, 1 at edges
+    return distance * 4;
+  });
+  const smoothEdgeScale = useSpring(edgeScale, { stiffness: 120, damping: 28, mass: 0.3 });
+  const smoothEdgeOpacity = useSpring(edgeOpacity, { stiffness: 120, damping: 28, mass: 0.3 });
+  const smoothEdgeBlur = useSpring(edgeBlurAmount, { stiffness: 120, damping: 28, mass: 0.3 });
+  // CSS `filter` takes a string, so derive it from the smoothed numeric
+  // motion value rather than springing the string directly.
+  const edgeFilter = useTransform(smoothEdgeBlur, (b) => `blur(${b.toFixed(2)}px)`);
 
   // Staggered entrance delay (within a row of 4, then resets)
   const entryDelay = (index % 4) * 0.085;
@@ -101,7 +123,16 @@ export function SongCard({
   };
 
   return (
-    <motion.div ref={wrapperRef} style={{ y: smoothY }}>
+    <motion.div
+      ref={wrapperRef}
+      style={{
+        y: smoothY,
+        scale: smoothEdgeScale,
+        opacity: smoothEdgeOpacity,
+        filter: edgeFilter,
+        willChange: "transform, opacity, filter",
+      }}
+    >
       <motion.button
         ref={btnRef}
         onMouseMove={onMove}
