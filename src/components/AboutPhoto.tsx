@@ -5,64 +5,109 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 /**
- * Scroll-linked color emergence for the AboutSection band photo.
+ * Scroll-driven "stage curtain" reveal for the AboutSection band photo.
  *
- * Mapping from the photo's scroll position through the viewport:
+ * Two yellow accent panels (top half + bottom half) cover the photo when
+ * the section first comes into view. Stamped across the midline of the
+ * two panels — straddling the seam — is the word "CALIBER" in bold
+ * black display type, sized to dominate the frame.
  *
- *   distance-from-center   →  filter           opacity
- *   ─────────────────────────────────────────────────────
- *   0  (perfectly centred) →  full sat / 0 blur / 1.0
- *   0.5  (half way out)    →  ~85% / ~1px / ~0.9
- *   1  (just entering or   →  40% / 4px / 0.6
- *       just leaving)
+ * As the user scrolls the photo into the centre of the viewport, the
+ * panels split like elevator doors:
+ *   • top panel slides UP (-110% of its height) with a small −2°
+ *     rotation around its centre — left edge tips up first
+ *   • bottom panel slides DOWN (+110%) with a +2° rotation — right
+ *     edge tips down first
+ * The stamped word physically tears apart along its horizontal
+ * midline — the eye reads the moment of separation, not just two
+ * panels sliding off.
  *
- * The fade is squared (d²) so the photo stays mostly sharp through the
- * middle of its scroll range and only really fades at the very edges —
- * the user spends most of the time "in focus" with a soft develop-in
- * at first sight and a matching dissolve as it scrolls away.
+ * Timing:
+ *   progress 0       photo's bottom touches viewport bottom (entry)
+ *   progress 0.10    curtain starts opening
+ *   progress 0.55    curtain fully gone, photo fully revealed
+ *   progress 1       photo centred in viewport
+ * So by the time the user has the photo in front of them, the curtain
+ * is a memory and the photo is the focus.
  *
- * useScroll target = the photo's own wrapper. offset ["start end", "end
- * start"] = progress 0 when the photo's BOTTOM touches the viewport
- * BOTTOM (first appearing), progress 1 when the photo's TOP touches
- * the viewport TOP (about to disappear above).
+ * pointer-events-none on the curtains so once they're off-screen they
+ * can't trap stray clicks.
  */
 export function AboutPhoto({ src, alt }: { src: string; alt: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start end", "center center"],
   });
 
-  const filter = useTransform(scrollYProgress, (p) => {
-    const t = Math.max(0, Math.min(1, p));
-    const distance = Math.abs(t - 0.5) * 2; // 0 at centre, 1 at edges
-    const fade = distance * distance;       // ease-in (soft falloff)
-    const sat = (100 - fade * 60).toFixed(1);   // 100% → 40%
-    const blur = (fade * 4).toFixed(2);         // 0px → 4px
-    return `saturate(${sat}%) blur(${blur}px)`;
-  });
+  // Reveal window: curtain stays shut for the first 10% of scroll, then
+  // opens over the next 45%. The remainder (0.55 → 1.0) is "photo
+  // already revealed, user heading toward it."
+  const REVEAL_IN: [number, number] = [0.1, 0.55];
+  const topY = useTransform(scrollYProgress, REVEAL_IN, ["0%", "-110%"]);
+  const bottomY = useTransform(scrollYProgress, REVEAL_IN, ["0%", "110%"]);
+  const topRotate = useTransform(scrollYProgress, REVEAL_IN, [0, -2]);
+  const bottomRotate = useTransform(scrollYProgress, REVEAL_IN, [0, 2]);
 
-  const opacity = useTransform(scrollYProgress, (p) => {
-    const t = Math.max(0, Math.min(1, p));
-    const distance = Math.abs(t - 0.5) * 2;
-    const fade = distance * distance;
-    return 1 - fade * 0.4; // 1.0 → 0.6
-  });
+  // Subtle Ken-Burns on the photo itself once the curtain is mostly out
+  // of the way — gives the reveal a final breath instead of a hard cut.
+  const photoScale = useTransform(scrollYProgress, [0.4, 1], [1.05, 1.0]);
 
   return (
-    <motion.div
+    <div
       ref={ref}
       className="relative aspect-square w-full overflow-hidden border-2 border-[var(--color-border-strong)]"
-      style={{ filter, opacity, willChange: "filter, opacity" }}
     >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(max-width: 768px) 90vw, 40vw"
-        className="object-cover"
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
-    </motion.div>
+      {/* Photo (always present, just hidden behind the curtain initially) */}
+      <motion.div className="absolute inset-0" style={{ scale: photoScale }}>
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 90vw, 40vw"
+          className="object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
+      </motion.div>
+
+      {/*
+        TOP curtain half — slides UP.
+        The "CALIBER" stamp is absolutely positioned with its centre
+        anchored at top: 100% of this half. That's the midline of the
+        full curtain, where the two halves meet. Overflow-hidden on
+        this half clips the bottom of the text, so only the TOP halves
+        of the letters are visible here — and they ride up with the
+        panel when it slides away.
+      */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-[var(--color-accent)]"
+        style={{ y: topY, rotate: topRotate, willChange: "transform" }}
+      >
+        <span
+          className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[26vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[14vw]"
+        >
+          CALIBER
+        </span>
+      </motion.div>
+
+      {/*
+        BOTTOM curtain half — slides DOWN.
+        Mirror of the top: stamp centred on top: 0 of this half
+        (= midline of the full curtain). Overflow clips the top of the
+        letters, leaving only the BOTTOM halves visible here.
+      */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-[var(--color-accent)]"
+        style={{ y: bottomY, rotate: bottomRotate, willChange: "transform" }}
+      >
+        <span
+          className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[26vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[14vw]"
+        >
+          CALIBER
+        </span>
+      </motion.div>
+    </div>
   );
 }
