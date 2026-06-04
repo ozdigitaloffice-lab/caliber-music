@@ -88,24 +88,15 @@ export function SongCard({
   // attempt. Plain scale + opacity + CSS filter are flat-DOM operations
   // the browser handles without disturbing the click target.
   //
-  // Magnitudes (per user — "medium"):
+  // Magnitudes (per user — "medium", blur dropped per follow-up):
   //   scale    0.85  at edges  →  1.00  at centre
   //   opacity  0.55  at edges  →  1.00  at centre
-  //   blur     4 px  at edges  →  0 px  at centre
-  // Springs match the parallax-y spring so all three motions feel like
-  // they're moving with the same physics.
+  // Springs match the parallax-y spring so both motions feel like they
+  // are moving with the same physics.
   const edgeScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.85, 1, 0.85]);
   const edgeOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.55, 1, 0.55]);
-  const edgeBlurAmount = useTransform(scrollYProgress, (p) => {
-    const distance = Math.abs(p - 0.5) * 2; // 0 centred, 1 at edges
-    return distance * 4;
-  });
   const smoothEdgeScale = useSpring(edgeScale, { stiffness: 120, damping: 28, mass: 0.3 });
   const smoothEdgeOpacity = useSpring(edgeOpacity, { stiffness: 120, damping: 28, mass: 0.3 });
-  const smoothEdgeBlur = useSpring(edgeBlurAmount, { stiffness: 120, damping: 28, mass: 0.3 });
-  // CSS `filter` takes a string, so derive it from the smoothed numeric
-  // motion value rather than springing the string directly.
-  const edgeFilter = useTransform(smoothEdgeBlur, (b) => `blur(${b.toFixed(2)}px)`);
 
   // Staggered entrance delay (within a row of 4, then resets)
   const entryDelay = (index % 4) * 0.085;
@@ -129,8 +120,7 @@ export function SongCard({
         y: smoothY,
         scale: smoothEdgeScale,
         opacity: smoothEdgeOpacity,
-        filter: edgeFilter,
-        willChange: "transform, opacity, filter",
+        willChange: "transform, opacity",
       }}
     >
       <motion.button
