@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { RevealHeading } from "./RevealHeading";
 import { Reveal3D } from "./Reveal3D";
+import { AboutPhoto } from "./AboutPhoto";
 
 /**
  * "מי אנחנו" — bio paragraph + slogan quote + band photo.
@@ -60,23 +60,12 @@ export function AboutSection() {
           </Reveal3D>
         </div>
 
-        {/* Image column */}
-        {/*
-          New band photo is a 1254×1254 square. The container's aspect
-          ratio now matches (aspect-square) so the photo fits without
-          cropping the outer members — the previous aspect-[4/5] would
-          have shaved ~20% off the sides on this square source.
-        */}
-        <div className="relative aspect-square w-full overflow-hidden border-2 border-[var(--color-border-strong)]">
-          <Image
-            src={BAND_PHOTO}
-            alt="משפחת קליבר"
-            fill
-            sizes="(max-width: 768px) 90vw, 40vw"
-            className="object-cover"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
-        </div>
+        {/* Image column — square aspect matches the 1254×1254 source.
+            AboutPhoto wraps Next/Image with a scroll-linked saturate +
+            blur + opacity ramp: dim and slightly soft on entry, full
+            colour at viewport centre, fades back to dim as it scrolls
+            away on top. Same component on mobile and desktop. */}
+        <AboutPhoto src={BAND_PHOTO} alt="משפחת קליבר" />
       </div>
     </section>
   );
