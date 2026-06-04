@@ -12,8 +12,12 @@ const BIO = `במשפחת קליבר, המוזיקה היא לא תחביב – 
 
 const QUOTE = "קליבר – האמת שלכם, הווליום שלנו.";
 
-const BAND_PHOTO =
-  "https://customer-assets.emergentagent.com/job_3e445c6f-4f21-4280-b902-49885a77d5d7/artifacts/lt7sqz88_%D7%A2%D7%99%D7%A6%D7%95%D7%91%20%D7%9C%D7%9C%D7%90%20%D7%A9%D7%9D%20%2839%29.png";
+// Local band photo (replaces the previous emergent CDN reference). Stored
+// at public/band-photo.jpg — Next/Image will serve appropriately-sized
+// variants automatically based on the `sizes` prop below. Source was a
+// 1254×1254 PNG (~2.2 MB), converted to JPEG q3 at ~283 KB with no
+// perceptible loss for this composition.
+const BAND_PHOTO = "/band-photo.jpg";
 
 export function AboutSection() {
   return (
@@ -57,13 +61,19 @@ export function AboutSection() {
         </div>
 
         {/* Image column */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden border-2 border-[var(--color-border-strong)]">
+        {/*
+          New band photo is a 1254×1254 square. The container's aspect
+          ratio now matches (aspect-square) so the photo fits without
+          cropping the outer members — the previous aspect-[4/5] would
+          have shaved ~20% off the sides on this square source.
+        */}
+        <div className="relative aspect-square w-full overflow-hidden border-2 border-[var(--color-border-strong)]">
           <Image
             src={BAND_PHOTO}
             alt="משפחת קליבר"
             fill
             sizes="(max-width: 768px) 90vw, 40vw"
-            className="object-cover object-top"
+            className="object-cover"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" />
         </div>
