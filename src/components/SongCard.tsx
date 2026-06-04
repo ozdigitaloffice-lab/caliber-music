@@ -78,6 +78,38 @@ export function SongCard({
   // Spring-smooth it so wheel-tick jumps don't read as judder.
   const smoothY = useSpring(parallaxY, { stiffness: 80, damping: 24, mass: 0.4 });
 
+  // ────── Cylindrical curl (the "scroll/parchment edges curl inward" effect) ──────
+  // The cards live on the surface of an invisible horizontal cylinder
+  // tangent to the viewport centre. At progress 0.5 the card is at the
+  // centre of the viewport — flat-on, full size, full opacity. As it
+  // moves toward the top edge (progress → 1) it tips its top edge away
+  // and recedes; toward the bottom edge (progress → 0) the bottom edge
+  // tips away. Same magnitude in both directions — symmetric curl.
+  //
+  // Four properties layered for genuine depth perception:
+  //   rotateX    angle of the curl   (±35° at the edges, 0° at centre)
+  //   z          push-back depth     (−110 px at the edges, 0 at centre)
+  //   scale      slight shrink       (0.88 at the edges, 1 at centre)
+  //   opacity    dim the rim         (0.55 at the edges, 1 at centre)
+  //
+  // Grid wrapper provides the perspective (1400 px) so all 17 cards
+  // share one 3D scene and the curl reads as a single cylinder rather
+  // than each card spinning in its own private space.
+  const CYL_ROT = 35;
+  const CYL_Z = 110;
+  const CYL_SCALE_MIN = 0.88;
+  const CYL_OPACITY_MIN = 0.55;
+  const cylRotateX = useTransform(scrollYProgress, [0, 0.5, 1], [CYL_ROT, 0, -CYL_ROT]);
+  const cylZ = useTransform(scrollYProgress, [0, 0.5, 1], [-CYL_Z, 0, -CYL_Z]);
+  const cylScale = useTransform(scrollYProgress, [0, 0.5, 1], [CYL_SCALE_MIN, 1, CYL_SCALE_MIN]);
+  const cylOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [CYL_OPACITY_MIN, 1, CYL_OPACITY_MIN]);
+  // Light spring on each so a wheel tick blends into a curl rather than
+  // snapping to a new pose every frame.
+  const smoothCylRotateX = useSpring(cylRotateX, { stiffness: 120, damping: 28, mass: 0.35 });
+  const smoothCylZ = useSpring(cylZ, { stiffness: 120, damping: 28, mass: 0.35 });
+  const smoothCylScale = useSpring(cylScale, { stiffness: 120, damping: 28, mass: 0.35 });
+  const smoothCylOpacity = useSpring(cylOpacity, { stiffness: 120, damping: 28, mass: 0.35 });
+
   // Staggered entrance delay (within a row of 4, then resets)
   const entryDelay = (index % 4) * 0.085;
 
@@ -94,7 +126,20 @@ export function SongCard({
   };
 
   return (
-    <motion.div ref={wrapperRef} style={{ y: smoothY }}>
+    <motion.div
+      ref={wrapperRef}
+      style={{
+        y: smoothY,
+        rotateX: smoothCylRotateX,
+        z: smoothCylZ,
+        scale: smoothCylScale,
+        opacity: smoothCylOpacity,
+        // preserve-3d so the inner button's mouse-tilt and the outer's
+        // cylinder curl compose in real 3D space — without it, the curl
+        // would flatten the inner tilt.
+        transformStyle: "preserve-3d",
+      }}
+    >
       <motion.button
         ref={btnRef}
         onMouseMove={onMove}
