@@ -42,25 +42,8 @@ export function SongGrid({ songs }: { songs: Song[] }) {
           </p>
         </header>
 
-        {/*
-          Bento: 2 hero tiles on top, then 2/3/4-col grid.
-          perspective + transform-style turn the whole grid into a single
-          shared 3D scene. Each card inside reads its own viewport
-          position and applies a rotateX + translateZ that curls it
-          inward at the top and bottom edges of the viewport — the
-          "parchment unrolling, edges still curled toward the centre"
-          effect. Grid-level perspective (not per-card) so all cards
-          share the same cylinder rather than each rolling in private
-          space.
-        */}
-        <div
-          className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3"
-          style={{
-            perspective: "1400px",
-            perspectiveOrigin: "center center",
-            transformStyle: "preserve-3d",
-          }}
-        >
+        {/* Bento: 2 hero tiles on top, then 2/3/4-col grid */}
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
           {/* Hero row — span 2 cols each on md+ */}
           {[hero1, hero2].filter(Boolean).map((s, i) => (
             <div key={s.title} className="col-span-2">
