@@ -85,7 +85,7 @@ export function AboutPhoto({ src, alt }: { src: string; alt: string }) {
         transition={TRANSITION}
         style={{ willChange: "transform" }}
       >
-        <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[26vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[14vw]">
+        <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[14vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[5.5vw]">
           CALIBER
         </span>
       </motion.div>
@@ -99,7 +99,7 @@ export function AboutPhoto({ src, alt }: { src: string; alt: string }) {
         transition={TRANSITION}
         style={{ willChange: "transform" }}
       >
-        <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[26vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[14vw]">
+        <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-[var(--font-display-en)] text-[14vw] font-bold uppercase leading-none tracking-[-0.04em] text-black md:text-[5.5vw]">
           CALIBER
         </span>
       </motion.div>
