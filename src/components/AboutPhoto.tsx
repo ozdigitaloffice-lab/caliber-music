@@ -40,10 +40,15 @@ export function AboutPhoto({ src, alt }: { src: string; alt: string }) {
     offset: ["start end", "center center"],
   });
 
-  // Reveal window: curtain stays shut for the first 10% of scroll, then
-  // opens over the next 45%. The remainder (0.55 → 1.0) is "photo
-  // already revealed, user heading toward it."
-  const REVEAL_IN: [number, number] = [0.1, 0.55];
+  // Reveal window: curtain stays shut for the first 55% of the scroll
+  // (the period when the photo is just rising into view from the
+  // bottom — user is still on their way to it). Opens between 0.55 and
+  // 0.9, so the photo is fully revealed right as the user is
+  // "arriving" at it. The tail (0.9 → 1.0) is just a beat with the
+  // photo settled in view. User feedback: the previous timing
+  // (0.10 → 0.55) was way too eager — the curtain was already opening
+  // before they were even looking at the photo.
+  const REVEAL_IN: [number, number] = [0.55, 0.9];
   const topY = useTransform(scrollYProgress, REVEAL_IN, ["0%", "-110%"]);
   const bottomY = useTransform(scrollYProgress, REVEAL_IN, ["0%", "110%"]);
   const topRotate = useTransform(scrollYProgress, REVEAL_IN, [0, -2]);
