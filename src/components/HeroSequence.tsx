@@ -169,19 +169,25 @@ export function HeroSequence({
           // hero there; cropping the sides of a landscape video to fit
           // a portrait canvas is the natural read.
           const isDesktop = window.innerWidth >= 768;
+          // Scale multiplier applied on top of contain-fit on desktop.
+          //   1.0 → pure contain (no crop, max side-letterbox)
+          //   >1  → larger frame; side-letterbox shrinks but a slice of
+          //         vertical overflow appears. Anchored to the BOTTOM
+          //         (dy = h − dh) so the overflow always crops off the
+          //         top — per user request: "let it spill a bit from the
+          //         top but cover more on the sides."
+          // Tune this knob in small steps (1.05, 1.1, 1.15, 1.2 ...).
+          const DESKTOP_CONTAIN_SCALE = 1.1;
           if (isDesktop) {
-            // contain-fit
             if (fA > cA) {
-              dw = w;
-              dh = w / fA;
-              dx = 0;
-              dy = (h - dh) / 2;
+              dw = w * DESKTOP_CONTAIN_SCALE;
+              dh = (w / fA) * DESKTOP_CONTAIN_SCALE;
             } else {
-              dh = h;
-              dw = h * fA;
-              dx = (w - dw) / 2;
-              dy = 0;
+              dh = h * DESKTOP_CONTAIN_SCALE;
+              dw = h * fA * DESKTOP_CONTAIN_SCALE;
             }
+            dx = (w - dw) / 2;
+            dy = h - dh;
           } else if (fA > cA) {
             // mobile cover-fit
             dh = h;
