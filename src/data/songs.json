@@ -310,7 +310,8 @@
         "title": "מי אני ? מה אני ?"
       },
       "spotify": {
-        "matchType": "unavailable"
+        "url": "https://open.spotify.com/search/%D7%9E%D7%99%20%D7%90%D7%A0%D7%99%20%D7%9E%D7%94%20%D7%90%D7%A0%D7%99%20%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%20%D7%A7%D7%9C%D7%99%D7%91%D7%A8",
+        "matchType": "search-fallback"
       }
     },
     {
@@ -332,7 +333,8 @@
         "title": "יאללה תתעורר !!! - משפחת קליבר"
       },
       "spotify": {
-        "matchType": "unavailable"
+        "url": "https://open.spotify.com/search/%D7%99%D7%90%D7%9C%D7%9C%D7%94%20%D7%AA%D7%AA%D7%A2%D7%95%D7%A8%D7%A8%20%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%20%D7%A7%D7%9C%D7%99%D7%91%D7%A8",
+        "matchType": "search-fallback"
       }
     },
     {
@@ -354,7 +356,8 @@
         "title": "זה קשה ? לא קשה..."
       },
       "spotify": {
-        "matchType": "unavailable"
+        "url": "https://open.spotify.com/search/%D7%96%D7%94%20%D7%A7%D7%A9%D7%94%20%D7%9C%D7%90%20%D7%A7%D7%A9%D7%94%20%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%20%D7%A7%D7%9C%D7%99%D7%91%D7%A8",
+        "matchType": "search-fallback"
       }
     },
     {
@@ -401,7 +404,8 @@
         "title": "נופר על הכביש"
       },
       "spotify": {
-        "matchType": "unavailable"
+        "url": "https://open.spotify.com/search/%D7%A0%D7%95%D7%A4%D7%A8%20%D7%A2%D7%9C%20%D7%94%D7%9B%D7%91%D7%99%D7%A9%20%D7%9E%D7%A9%D7%A4%D7%97%D7%AA%20%D7%A7%D7%9C%D7%99%D7%91%D7%A8",
+        "matchType": "search-fallback"
       }
     },
     {
@@ -435,8 +439,8 @@
     "withYouTube": 17,
     "spotifyExact": 13,
     "missingYouTube": [],
-    "spotifyUnavailable": 4,
-    "spotifyUnavailableTitles": [
+    "spotifySearchFallback": 4,
+    "spotifyFallbackTitles": [
       "מי אני ? מה אני ?",
       "יאללה תתעורר !!!",
       "זה קשה ? לא קשה...",

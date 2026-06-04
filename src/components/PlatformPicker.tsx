@@ -115,22 +115,25 @@ export function PlatformPicker({
             </div>
 
             <div className="flex flex-col gap-2.5">
-              {/* Spotify row only renders when the track actually exists
-                  on Spotify. 4 of the 17 singles were never released
-                  there (verified via song.link API) — the old behaviour
-                  showed a Spotify button that opened a /search/<title>
-                  page, which looked like a working link but landed users
-                  on results instead of the song. Skipping the row
-                  entirely is more honest. */}
-              {song.spotify.matchType === "exact" && (
-                <PickerButton
-                  href={song.spotify.url}
-                  label="Spotify"
-                  sub="השמעה ישירה"
-                  icon={<SpotifyIcon className="h-6 w-6" />}
-                  accentClass="hover:bg-[#1DB954] hover:text-black hover:border-[#1DB954]"
-                />
-              )}
+              {/* Spotify row: "השמעה ישירה" for the 13 tracks with
+                  verified track URLs, "פתיחת חיפוש" for the 4 that
+                  fall back to a search query. The search URLs are
+                  built with "?", "!", "..." stripped before
+                  URL-encoding so Spotify doesn't read the first "?"
+                  in the query string as a path/query separator and
+                  truncate the search silently (which is what was
+                  breaking the previous links). */}
+              <PickerButton
+                href={song.spotify.url}
+                label="Spotify"
+                sub={
+                  song.spotify.matchType === "exact"
+                    ? "השמעה ישירה"
+                    : "פתיחת חיפוש"
+                }
+                icon={<SpotifyIcon className="h-6 w-6" />}
+                accentClass="hover:bg-[#1DB954] hover:text-black hover:border-[#1DB954]"
+              />
               <PickerButton
                 href={song.apple.url}
                 label="Apple Music"

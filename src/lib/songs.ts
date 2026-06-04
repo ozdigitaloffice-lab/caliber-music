@@ -10,17 +10,19 @@ export type YoutubeRef = {
   title: string;
 };
 // matchType variants:
-//   "exact"        — verified track URL, direct playback (most cases)
-//   "unavailable"  — the song is not on Spotify (only Apple/YouTube).
-//                    PlatformPicker hides the Spotify row for these.
-//                    Previously we used "search-fallback" with a /search/
-//                    URL, but those URLs landed on a Spotify search page
-//                    (no playback), so they were effectively useless and
-//                    misleading. Cross-checked via song.link API; the
-//                    songs in this state genuinely have no Spotify track.
+//   "exact"           — verified track URL, direct playback (most cases).
+//   "search-fallback" — the song isn't on Spotify (verified via song.link
+//                       API). The URL is a CLEAN search query — title
+//                       with "?", "!", "..." stripped before URL-encoding
+//                       so Spotify's URL parser doesn't mistake "?" for
+//                       the start of a query string (which would
+//                       silently truncate the search). The user lands on
+//                       Spotify's search results page rather than on a
+//                       track page, which is the best we can offer for
+//                       songs that genuinely don't exist on Spotify.
 export type SpotifyRef =
   | { trackId: string; url: string; embedUrl: string; matchType: "exact" }
-  | { matchType: "unavailable" };
+  | { url: string; matchType: "search-fallback" };
 
 export type Song = {
   title: string;
@@ -45,8 +47,8 @@ export type SongsData = {
     totalSongs: number;
     withYouTube: number;
     spotifyExact: number;
-    spotifyUnavailable: number;
-    spotifyUnavailableTitles: string[];
+    spotifySearchFallback: number;
+    spotifyFallbackTitles: string[];
     missingYouTube: string[];
   };
 };
