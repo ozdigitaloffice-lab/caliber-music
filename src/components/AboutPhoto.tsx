@@ -34,8 +34,18 @@ import { motion, useScroll } from "framer-motion";
  * which is what gave the previous version its "opens too eagerly"
  * feel.
  */
-const OPEN_AT = 0.35;
-const CLOSE_AT = 0.75;
+// Tight, symmetric window — for a photo that fits inside the viewport
+// (which the square AboutPhoto does on every realistic breakpoint),
+// progress between 0.4 and 0.6 means the photo is fully visible.
+//
+// Why symmetric: previous [0.35, 0.75] felt fine going DOWN (open at
+// 0.35 ≈ 80% visible) but eager going UP — that direction triggers off
+// CLOSE_AT, so the curtain was opening at progress 0.75 with only ~65%
+// of the photo in view. Equalising the thresholds around 0.5 makes the
+// open trigger fire at roughly the same visibility level in either
+// scroll direction.
+const OPEN_AT = 0.4;
+const CLOSE_AT = 0.6;
 
 export function AboutPhoto({ src, alt }: { src: string; alt: string }) {
   const ref = useRef<HTMLDivElement>(null);
