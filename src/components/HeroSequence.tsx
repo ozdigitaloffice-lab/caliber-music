@@ -148,27 +148,42 @@ export function HeroSequence({
           const cA = w / h;
           let dw, dh, dx, dy;
 
-          // Cover-fit on both breakpoints (image always fills the whole
-          // canvas).
+          // Two fit modes — picked by breakpoint:
           //
-          // Desktop vertical anchor is a *scroll-linked pan* across the
-          // taller-than-canvas image:
-          //     dy = (h − dh) × progress
-          //   progress = 0  →  dy = 0          (top of frame at top of
-          //                                     canvas — sky visible)
-          //   progress = 1  →  dy = h − dh     (bottom of frame at
-          //                                     bottom of canvas —
-          //                                     continuation visible)
-          //   Anything in-between is a smooth pan down through the
-          //   image as the user scrubs. So the scroll drives BOTH the
-          //   frame index AND a camera-style vertical pan, doubling
-          //   the sense of motion through the hero.
+          // Desktop — CONTAIN-FIT. With a 16:9 source on a typical
+          // browser viewport (~1920×930, aspect ~2.05 because the
+          // chrome eats vertical), cover-fit overflows vertically and
+          // crops the top or bottom. Earlier we tried a scroll-linked
+          // pan (top → bottom) to "tour" the frame, but the end state
+          // (bottom anchored) made the top disappear — user feedback:
+          // "the top of the video is missing." Contain-fit is the only
+          // way to guarantee the entire frame stays visible at every
+          // scroll position. The unused canvas area becomes a thin
+          // letterbox on the LEFT and RIGHT (because the source is
+          // narrower than the canvas at this aspect ratio), painted in
+          // the sticky child's --color-bg (black) — barely noticeable
+          // on the dark page.
           //
-          // Mobile keeps POSITION_Y_BIAS (0.35) — the canvas is only
-          // 65 vh tall and the scrub-linked pan reads as jitter at
-          // that height.
+          // Mobile — COVER-FIT with POSITION_Y_BIAS (0.35). The mobile
+          // canvas is only 65 vh tall and the user expects a full-bleed
+          // hero there; cropping the sides of a landscape video to fit
+          // a portrait canvas is the natural read.
           const isDesktop = window.innerWidth >= 768;
-          if (fA > cA) {
+          if (isDesktop) {
+            // contain-fit
+            if (fA > cA) {
+              dw = w;
+              dh = w / fA;
+              dx = 0;
+              dy = (h - dh) / 2;
+            } else {
+              dh = h;
+              dw = h * fA;
+              dx = (w - dw) / 2;
+              dy = 0;
+            }
+          } else if (fA > cA) {
+            // mobile cover-fit
             dh = h;
             dw = h * fA;
             dx = (w - dw) / 2;
@@ -177,9 +192,7 @@ export function HeroSequence({
             dw = w;
             dh = w / fA;
             dx = 0;
-            dy = isDesktop
-              ? (h - dh) * progress
-              : (h - dh) * POSITION_Y_BIAS;
+            dy = (h - dh) * POSITION_Y_BIAS;
           }
 
           ctx.clearRect(0, 0, w, h);
