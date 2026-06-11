@@ -17,6 +17,24 @@
   },
   "songs": [
     {
+      "title": "חזק במשחק",
+      "releaseDate": "2026-06-07",
+      "durationSec": 191,
+      "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a9/e4/6b/a9e46b31-920a-5bd8-768a-f3cf067327f3/artwork.jpg/1000x1000bb.jpg",
+      "preview": null,
+      "apple": {
+        "trackId": 6777779611,
+        "url": "https://music.apple.com/us/album/%D7%97%D7%96%D7%A7-%D7%91%D7%9E%D7%A9%D7%97%D7%A7/6777779609?i=6777779611"
+      },
+      "youtube": null,
+      "spotify": {
+        "trackId": "5OeWrJBcnWCIdOnvXl7Us7",
+        "url": "https://open.spotify.com/track/5OeWrJBcnWCIdOnvXl7Us7",
+        "embedUrl": "https://open.spotify.com/embed/track/5OeWrJBcnWCIdOnvXl7Us7",
+        "matchType": "exact"
+      }
+    },
+    {
       "title": "אמא אדמה",
       "releaseDate": "2026-05-12",
       "durationSec": 202,
@@ -435,10 +453,12 @@
     }
   ],
   "stats": {
-    "totalSongs": 17,
+    "totalSongs": 18,
     "withYouTube": 17,
-    "spotifyExact": 13,
-    "missingYouTube": [],
+    "spotifyExact": 14,
+    "missingYouTube": [
+      "חזק במשחק"
+    ],
     "spotifySearchFallback": 4,
     "spotifyFallbackTitles": [
       "מי אני ? מה אני ?",
