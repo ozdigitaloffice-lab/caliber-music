@@ -26,7 +26,14 @@
         "trackId": 6777779611,
         "url": "https://music.apple.com/us/album/%D7%97%D7%96%D7%A7-%D7%91%D7%9E%D7%A9%D7%97%D7%A7/6777779609?i=6777779611"
       },
-      "youtube": null,
+      "youtube": {
+        "videoId": "ROAQkpjnuV8",
+        "url": "https://www.youtube.com/watch?v=ROAQkpjnuV8",
+        "thumb": "https://i.ytimg.com/vi/ROAQkpjnuV8/maxresdefault.jpg",
+        "durationSec": 191.0,
+        "source": "manual",
+        "title": "חזק במשחק"
+      },
       "spotify": {
         "trackId": "5OeWrJBcnWCIdOnvXl7Us7",
         "url": "https://open.spotify.com/track/5OeWrJBcnWCIdOnvXl7Us7",
@@ -454,11 +461,9 @@
   ],
   "stats": {
     "totalSongs": 18,
-    "withYouTube": 17,
+    "withYouTube": 18,
     "spotifyExact": 14,
-    "missingYouTube": [
-      "חזק במשחק"
-    ],
+    "missingYouTube": [],
     "spotifySearchFallback": 4,
     "spotifyFallbackTitles": [
       "מי אני ? מה אני ?",
