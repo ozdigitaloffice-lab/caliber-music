@@ -228,7 +228,15 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
     let rafId = 0;
     let lastFrame = performance.now();
     let lastBallChange = lastFrame;
-    let screwT = 0;
+    // Initialise screwT so the newest cover (index 0) starts at a t-value
+    // INSIDE the visible band rather than at t=0 (which is the top fade
+    // edge — opacity 0). Without this offset, the newest single sat
+    // invisible for the first ~4.5 s after page load, then faded in;
+    // users who scrolled to the spiral, glanced, and scrolled away
+    // never actually saw it. With screwT = 0.3, cover 0 starts at
+    // t = (0 − 0.3 + 1) % 1 = 0.7 — comfortably mid-helix, fully
+    // opaque and visible from the first frame.
+    let screwT = 0.3;
     let stage: "dwell" | "hop" = "dwell";
     let fromIdx = 0;
     let toIdx = 0;
