@@ -160,9 +160,16 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
   // Each cover's current t given the screw offset. Subtracting screwT
   // (rather than adding) makes the covers travel UPWARD as time advances
   // — matches the requested "bottom → top" direction.
+  //
+  // Spacing: `i / N`, NOT `i / (N - 1)`. The latter puts i=0 at t=0 and
+  // i=N-1 at t=1, which after `% 1` collapse to the same point — every
+  // page load had the first and last covers stacked on top of each
+  // other at identical (x, y, z). With N covers on a wrap-around
+  // helix, the correct stride is 1/N so the N positions are evenly
+  // spaced around the cylinder with no collision at the seam.
   const tForIdx = (i: number, screwT: number) => {
     if (N <= 1) return 0.5;
-    return ((i / (N - 1)) - screwT + 1) % 1;
+    return ((i / N) - screwT + 1) % 1;
   };
 
   // ────── React state for visual effects (border / shadow / scale) ──────
@@ -493,7 +500,11 @@ export function SongsSpiral({ songs }: { songs: Song[] }) {
             // Initial render uses screwT=0 → same positions as the old
             // static helix. The rAF loop takes over from frame 1, so a
             // moment-zero flash, if any, is just the legacy layout.
-            const initT = N <= 1 ? 0.5 : i / (N - 1);
+            // Same i / N spacing as tForIdx — otherwise the SSR/CSR
+            // initial paint stacks i=0 on top of i=N-1 (their seam t-values
+            // collapse to 0 after the % 1 wrap) for the single frame
+            // before the rAF loop takes over.
+            const initT = N <= 1 ? 0.5 : i / N;
             const initPos = positionAt(initT);
             const initOp = opacityAt(initT);
             const isLanded = i === landedIndex;
